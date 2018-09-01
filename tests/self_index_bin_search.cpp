@@ -93,11 +93,49 @@ static void partial_build_locate(benchmark::State& state)
         SelfGrammarIndexBS self_index;
         self_index.build(_g,grid);
 
-        uint R = 100;
+        uint R = 10000;
         std::srand(std::time(nullptr));
         uint t = 0;
         double mean = 0;
         unsigned long occ_n= 0;
+
+
+     /*   std::fstream fpp("prob_pattern_pt",std::ios::in| std::ios::binary);
+        std::string buff_p;
+
+        while (!fpp.eof() && std::getline(fpp, buff_p)) {
+
+            sdsl::bit_vector _occ(data.size(),0);
+            sdsl::bit_vector _X(data.size(),0);
+
+
+            auto start = timer::now();
+            size_t pos = data.find(buff_p, 0);
+            uint tooc = 0;
+            while(pos != string::npos)
+            {
+                _X[pos] = true;
+                tooc++;;
+                pos = data.find(buff_p,pos+1);
+            }
+            auto stop = timer::now();
+
+
+            auto start_ = timer::now();
+            self_index.locate(buff_p, _occ);
+            auto stop_ = timer::now();
+
+            EXPECT_EQ(_occ,_X);
+            cout << "query[" << ++t << "] cadena: " <<buff_p<<"\t my time\t"<< duration_cast<microseconds>(stop_ - start_).count()<<"\t num de occ:"<<tooc<<std::endl;
+            cout << "query[" << t << "] cadena: " <<buff_p<<"\t BF time\t"<< duration_cast<microseconds>(stop - start).count()<<std::endl;
+            mean  += duration_cast<microseconds>(stop_ - start_).count()*1.0/100;
+            occ_n += tooc;
+
+
+        }
+*/
+        std::fstream fpp("prob_pattern_bin",std::ios::out| std::ios::binary);
+        std::string buff_p;
 
         while (--R) {
 
@@ -141,6 +179,12 @@ static void partial_build_locate(benchmark::State& state)
             auto stop_ = timer::now();
 
             EXPECT_EQ(_occ,_X);
+            if(_occ!=_X){
+                fpp << patt <<'\n';
+                return;
+            }
+
+
 
             cout << "query[" << ++t << "] cadena: " <<patt<<"\t my time\t"<< duration_cast<microseconds>(stop_ - start_).count()<<"\t num de occ:"<<tooc<<std::endl;
             cout << "query[" << t << "] cadena: " <<patt<<"\t BF time\t"<< duration_cast<microseconds>(stop - start).count()<<std::endl;
@@ -279,10 +323,6 @@ static void partial_build_extract(benchmark::State& state)
     }
 
 }
-
-
-
-
 static void sibs_build(benchmark::State& state)
 {
     size_t points = state.range(0);
@@ -321,7 +361,6 @@ static void sibs_build(benchmark::State& state)
 
     }
 }
-
 static void sibs_extract_subtrings(benchmark::State& state)
 {
 
@@ -402,7 +441,6 @@ static void sibs_extract_subtrings(benchmark::State& state)
 
 
 }
-
 static void sibs_locate(benchmark::State& state)
 {
 
@@ -411,7 +449,8 @@ static void sibs_locate(benchmark::State& state)
     {
         uint folder = state.range(0);
         uint coll   = state.range(1);
-        std::string collection = "../" + dirFolder[folder]+dircollection[coll];
+        //std::string collection = "prob_pattern_bin";
+        std::string collection = "../tests/collections/repetitive/reals/einstein.de.txt";//"../" + dirFolder[folder]+dircollection[coll];
         std::fstream f(collection, std::ios::in| std::ios::binary);
         std::string data;
         std::cout << "collection: "<< collection << std::endl;
@@ -436,16 +475,71 @@ static void sibs_locate(benchmark::State& state)
         }*/
 
         SelfGrammarIndexBS self_index;
-        data = "abraabracadabracadaabraabracadabracadabraabraabraabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracadabradabrababraabracadabracadabraabracabracadabraaabracadabradabraraabracabracadabraaabracadabradabra";
-        self_index.build(data);
+
+        ///data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra";
+        ///data = "panamabanana";
+        ///self_index.build(data);
+        std::fstream sf("einstein-bin.idx2", std::ios::in| std::ios::binary);
+        self_index.load(sf);
+        sf.close();
+/*
+       {
+           std::cout<<"Hello"<<std::endl;
+            std::fstream ptf("einstein.words_f1_100", std::ios::in| std::ios::binary);
+            sdsl::bit_vector _occ(data.size(),0);
+            sdsl::bit_vector _X(data.size(),0);
+            uint t = 0;
+
+            double mean = 0, total_time = 0, n_occ =0;
+
+            std::getline(ptf, buff);
+
+            while (!ptf.eof() && std::getline(ptf, buff)) {
+                int i,l;
+                char _patt [100];
+                sscanf(buff.c_str(),"%d %d %s",&i,&l,_patt);
+                std::string patt(_patt);
+
+
+
+                size_t pos = data.find(patt, 0);
+                uint tooc = 0;
+                while(pos != string::npos)
+                {
+                    _X[pos] = true;
+                    tooc++;;
+                    pos = data.find(patt,pos+1);
+                }
+
+                auto start_ = timer::now();
+                self_index.locate(patt, _occ);
+                auto stop_ = timer::now();
+
+                EXPECT_EQ(_occ,_X);
+
+                sdsl::bit_vector::rank_1_type _r(&_occ);
+               /// cout << "query[" << ++t << "] cadena: " <<patt<<"\t my time\t"<< duration_cast<microseconds>(stop_ - start_).count()<<"\t num de occ:"<<_r.rank(_occ.size())<<std::endl;
+                n_occ += _r.rank(_occ.size());
+                mean += duration_cast<microseconds>(stop_ - start_).count()*1.0/100;
+                total_time += duration_cast<microseconds>(stop_ - start_).count();
+            }
+
+            cout << "query[ mean ] time: " <<mean<<std::endl;
+            cout << "total time: " <<total_time<<std::endl;
+            cout << "occurrencias: " <<n_occ<<std::endl;
+
+        }
+*/
+
+/*
 
 
         uint R = 100;
-        std::srand(std::time(nullptr));
+        //std::srand(std::time(nullptr));
         uint t = 0;
-        double mean = 0;
+        double mean = 0, total_time = 0;
 
-        while (--R) {
+        while (R) {
 
 
             sdsl::bit_vector _occ(data.size(),0);
@@ -456,9 +550,9 @@ static void sibs_locate(benchmark::State& state)
             std::string patt;
 
             if (r1 > data.size() / 2) {
-                r2 = r1 - 5;
+                r2 = r1 - 10;
             } else {
-                r2 = r1 + 5;
+                r2 = r1 + 10;
             }
 
             if(r1 > r2) std::swap(r1,r2);
@@ -467,10 +561,13 @@ static void sibs_locate(benchmark::State& state)
 
             std::copy(data.begin() + r1, data.begin() + r2 +1, patt.begin());
 
-            ///if(patt.empty())continue;
-           ///// patt = "braca";
+            if(patt.empty())continue;
 
-            auto start = timer::now();
+            ptf << patt << '\n';
+
+            --R;
+
+           /* auto start = timer::now();
             size_t pos = data.find(patt, 0);
             uint tooc = 0;
             while(pos != string::npos)
@@ -488,12 +585,17 @@ static void sibs_locate(benchmark::State& state)
 
             EXPECT_EQ(_occ,_X);
 
-            cout << "query[" << ++t << "] cadena: " <<patt<<"\t my time\t"<< duration_cast<microseconds>(stop_ - start_).count()<<"\t num de occ:"<<tooc<<std::endl;
-            cout << "query[" << t << "] cadena: " <<patt<<"\t BF time\t"<< duration_cast<microseconds>(stop - start).count()<<std::endl;
+            sdsl::bit_vector::rank_1_type _r(&_occ);
+
+            cout << "query[" << ++t << "] cadena: " <<patt<<"\t my time\t"<< duration_cast<microseconds>(stop_ - start_).count()<<"\t num de occ:"<<_r.rank(_occ.size())<<std::endl;
+            cout << "query[" << t << "] cadena: " <<patt<<"\t BF time\t"<< duration_cast<microseconds>(stop - start).count()<<"\t num de occ:"<<tooc<<std::endl;
             mean += duration_cast<microseconds>(stop_ - start_).count()*1.0/100;
-        }
+            total_time += duration_cast<microseconds>(stop_ - start_).count();*/
+    /*    }
 
         cout << "query[ mean ] time: " <<mean<<std::endl;
+        cout << "total time: " <<total_time<<std::endl;
+    */
 
     }
 }
@@ -501,18 +603,18 @@ static void sibs_locate(benchmark::State& state)
 ////BENCHMARK(sibs_build)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
 
 
-////BENCHMARK(sibs_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
-
+BENCHMARK(sibs_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
+/*
 
 BENCHMARK(partial_build_extract)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
 BENCHMARK(partial_build_extract)->Args({dataDir::dir_sources, dataCollection::sources50})->Unit(benchmark::kMillisecond);
 BENCHMARK(partial_build_extract)->Args({dataDir::dir_pitches, dataCollection::pitches50})->Unit(benchmark::kMillisecond);
 
+*/
 
-
-BENCHMARK(partial_build_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
-BENCHMARK(partial_build_locate)->Args({dataDir::dir_sources, dataCollection::sources50})->Unit(benchmark::kMillisecond);
-BENCHMARK(partial_build_locate)->Args({dataDir::dir_pitches, dataCollection::pitches50})->Unit(benchmark::kMillisecond);
+//BENCHMARK(partial_build_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
+//BENCHMARK(partial_build_locate)->Args({dataDir::dir_sources, dataCollection::sources50})->Unit(benchmark::kMillisecond);
+///BENCHMARK(partial_build_locate)->Args({dataDir::dir_pitches, dataCollection::pitches50})->Unit(benchmark::kMillisecond);
 
 /*
 BENCHMARK(sibs_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);

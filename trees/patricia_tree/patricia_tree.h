@@ -202,9 +202,25 @@ namespace m_patricia {
         }
 
         /*
+         * Returns the number of repeted leaves
+         * */
+        size_t num_leaves_rep() const {
+
+            size_t _num_leaves = 0;
+            dfs(_root, [&_num_leaves, this](const node *n, const char &a, const ulong &j) {
+                if (n->childs.empty() && n->ids.size() > 1 ) {
+                    _num_leaves++;
+                    return false;
+                }
+                return true;
+            }, '_', 0);
+
+            return _num_leaves;
+        }
+        /*
          * Returns the number of leaves
          * */
-        size_t num_leaves() {
+        size_t num_leaves() const{
 
             size_t _num_leaves = 0;
             dfs(_root, [&_num_leaves, this](const node *n, const char &a, const ulong &j) {
@@ -239,7 +255,7 @@ namespace m_patricia {
         /*
          * Returns the number of internal nodes in the tree
          * */
-        size_t num_internal_nodes() {
+        size_t num_internal_nodes() const {
             size_t num = 0;
             dfs(_root, [&num, this](const node *n, const char &a, const ulong &j) {
                 if (!(n->childs.empty())) {
@@ -265,7 +281,15 @@ namespace m_patricia {
          * Print the tree
          * */
         void print() {
+            dfs(_root, [this](const node *n, const char &a, const ulong &j) {
 
+                std::cout<<"<"<<n->id<<">\n";
+                for (auto &&item :n->childs) {
+                    std::cout<<"\t< "<<item.first<<",<"<<item.second.first<<", "<<item.second.second->id<<"> >\n";
+                }
+                return true;
+
+            }, '_', 0);
         }
 
         /*
@@ -475,7 +499,7 @@ namespace m_patricia {
             assert(i>=0 && i <= size());
 
             if(i == size())
-                return '$';
+                return 0;
             return (*text)[second - i];
             /*
             auto j = i/(sizeof(char)*CHAR_BIT);

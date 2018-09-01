@@ -30,7 +30,7 @@ class SelfGrammarIndex {
 
         virtual void build(const grammar_representation&, const range_search2d& ) = 0;
 
-        virtual size_t locate( std::string& , sdsl::bit_vector &) = 0;
+        virtual void locate( std::string& , sdsl::bit_vector &) = 0;
 
         virtual void display(const std::size_t& , const std::size_t&, std::string & );
 
@@ -40,6 +40,10 @@ class SelfGrammarIndex {
         virtual unsigned long size_in_bytes() const;
 
     protected:
+
+        virtual void locate_ch( const char& , sdsl::bit_vector &);
+
+
         bool bp_expand_prefix(const grammar_representation::g_long &, std::string&,const size_t &,size_t & pos) const;
         bool bp_expand_suffix(const grammar_representation::g_long &, std::string&,const size_t &,size_t & pos) const;
 

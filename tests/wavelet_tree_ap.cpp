@@ -14,7 +14,7 @@ static void wavelet_tree_ap_big_size(benchmark::State& state)
 
     for (auto _ : state)
     {
-        uint folder = state.range(0);
+        /*uint folder = state.range(0);
         uint coll   = state.range(1);
         std::string collection = "../" + dirFolder[folder]+dircollection[coll];
         std::fstream f(collection, std::ios::in| std::ios::binary);
@@ -34,22 +34,27 @@ static void wavelet_tree_ap_big_size(benchmark::State& state)
 
         std::fstream fw("wt", std::ios::out| std::ios::binary);
 
-
+        sdsl::int_vector<> Xdata(data.size(),0);
         for (size_t i = 0; i <data.size() ; ++i) {
-            fw << i;
+            Xdata[i] = data[i];
         }
 
-        fw.close();
-
+        sdsl::serialize(Xdata,fw);
 
         std::cout << "size of the string: " << data.length() << std::endl;
         f.close();
-        data.clear();
+        data.clear();*/
         {
 
-            int8_t num_bytes = sizeof(size_t);
             sdsl::wt_blcd<> X;
-            sdsl::construct_im(X,collection,num_bytes);
+            //sdsl::construct(X,"wt",0);
+            //std::cout<<"constructed"<<std::endl;
+
+
+    
+            std::fstream fw_f("wt_f", std::ios::in| std::ios::binary);
+            sdsl::load(X,fw_f);
+            ////sdsl::load(Xdata,fw_f);
 
             std::cout<<"wt_ap (build on file)\n";
             std::cout<<"size in mb : "<<sdsl::size_in_mega_bytes(X)<<std::endl;
@@ -61,9 +66,9 @@ static void wavelet_tree_ap_big_size(benchmark::State& state)
 
     }
 }
-BENCHMARK(wavelet_tree_ap_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA100})->Unit(benchmark::kMillisecond);
+/*BENCHMARK(wavelet_tree_ap_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA100})->Unit(benchmark::kMillisecond);
 BENCHMARK(wavelet_tree_ap_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA200})->Unit(benchmark::kMillisecond);
-BENCHMARK(wavelet_tree_ap_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA})->Unit(benchmark::kMillisecond);
+BENCHMARK(wavelet_tree_ap_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA})->Unit(benchmark::kMillisecond);*/
 BENCHMARK(wavelet_tree_ap_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
 
 BENCHMARK_MAIN();

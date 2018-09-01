@@ -18,11 +18,13 @@ void m_patricia::compact_patricia_tree::build(const m_patricia::compact_patricia
 
 
     size_t n = tree.num_total_nodes();
-    sdsl::int_vector<> _jumps(n+1,0);
-    sdsl::int_vector<> _s(n+1,0);
+    size_t m_n = tree.num_leaves_rep();
+
+    sdsl::int_vector<> _jumps((n+m_n)+1,0);
+    sdsl::int_vector<> _s((n+m_n)+1,0);
     _s[0] = '_';
     _s[1] = '_';
-    sdsl::bit_vector b_temp(n*2-1,1);
+    sdsl::bit_vector b_temp((n+m_n)*2-1,1);
     size_t   pre = 1,pre_s = 2, off = 0;
 
     tree.dfs(tree.root(),[&_jumps,&_s,&b_temp,&pre_s,&pre, &off](const m_patricia::node *n, const char &a, const ulong &j)->bool
@@ -38,10 +40,10 @@ void m_patricia::compact_patricia_tree::build(const m_patricia::compact_patricia
         if( m > 1 && ch == 0){
             b_temp[off+m] = false;
             off+=m+1;
-            _s[pre_s] = a;
+            //////_s[pre_s] = a;
             _jumps[pre] = j;
             ++pre;
-            ++pre_s;
+            //////++pre_s;
 
             for (size_t  i = 0; i < n->ids.size() ; ++i) {
                 b_temp[off] = false;
@@ -93,11 +95,13 @@ void m_patricia::compact_patricia_tree::build(const m_patricia::patricia_tree<m_
 
 
     size_t n = tree.num_total_nodes();
-    sdsl::int_vector<> _jumps(n+1,0);
-    sdsl::int_vector<> _s(n+1,0);
+    size_t m_n = tree.num_leaves_rep();
+
+    sdsl::int_vector<> _jumps((n+m_n)+1,0);
+    sdsl::int_vector<> _s((n+m_n)+1,0);
     _s[0] = '_';
     _s[1] = '_';
-    sdsl::bit_vector b_temp(n*2-1,1);
+    sdsl::bit_vector b_temp((n+m_n)*2-1,1);
     size_t   pre = 1,pre_s = 2, off = 0;
 
     tree.dfs(tree.root(),[&_jumps,&_s,&b_temp,&pre_s,&pre, &off](const m_patricia::node *n, const char &a, const ulong &j)->bool
@@ -113,14 +117,14 @@ void m_patricia::compact_patricia_tree::build(const m_patricia::patricia_tree<m_
         if( m > 1 && ch == 0){
             b_temp[off+m] = false;
             off+=m+1;
-            _s[pre_s] = a;
+           //// _s[pre_s] = a;
             _jumps[pre] = j;
             ++pre;
-            ++pre_s;
+            ////++pre_s;
 
             for (size_t  i = 0; i < n->ids.size() ; ++i) {
                 b_temp[off] = false;
-                _s[pre_s] = (int)'#';
+                _s[pre_s] = 1;
                 _jumps[pre] = 1;
                 ++pre;
                 ++off;
@@ -169,6 +173,13 @@ compact_patricia_tree::ulong m_patricia::compact_patricia_tree::node_match(const
     return node;
 }
 
+compact_patricia_tree::ulong m_patricia::compact_patricia_tree::node_match(const m_patricia::compact_patricia_tree::revK &str) const {
+    ulong node = m_tree.root();
+    compact_patricia_tree::ulong p = 0;
+    path(node,str,p);
+    return node;
+}
+
 compact_patricia_tree::ulong m_patricia::compact_patricia_tree::node_locus(const m_patricia::compact_patricia_tree::K & str, const compact_patricia_tree::ulong & limit)const {
     compact_patricia_tree::ulong node = m_tree.root();
     compact_patricia_tree::ulong p = 0;
@@ -184,7 +195,8 @@ void m_patricia::compact_patricia_tree::save(std::fstream & f) const {
 
 }
 
-bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node, const m_patricia::compact_patricia_tree::K &str, compact_patricia_tree::ulong & p) const{
+bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node, const m_patricia::compact_patricia_tree::K &str,
+                                             compact_patricia_tree::ulong & p) const{
 
     size_t childrens = m_tree.children(node);
 
@@ -204,6 +216,10 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
     if(t == seq.begin()+r)
         return true;
     auto ppp = (compact_patricia_tree::ulong)(t-(seq.begin()+l-1)+1);
+
+    if(ppp > childrens)
+        return true;
+
     size_t child = m_tree.child(node, ppp );
 
     size_t ii = m_tree.pre_order(child);
@@ -215,6 +231,49 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
     return path(node,str,p);
 
 }
+
+
+bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node, const m_patricia::compact_patricia_tree::revK &str,
+                                             compact_patricia_tree::ulong & p) const{
+
+    size_t childrens = m_tree.children(node);
+
+    if (childrens == 0)
+    {
+        return true ;
+    }
+
+    if(p >= str.size())
+        return true;
+
+    compact_patricia_tree::ulong l = m_tree.rank_1(node);
+    compact_patricia_tree::ulong r = l + childrens ;
+
+    auto t = std::find(seq.begin()+l-1,seq.begin()+r,str[p]);
+
+    if(t == seq.begin()+r)
+        return true;
+    auto ppp = (compact_patricia_tree::ulong)(t-(seq.begin()+l-1)+1);
+
+    if(ppp > childrens)
+        return true;
+
+    size_t child = m_tree.child(node, ppp );
+
+
+    size_t ii = m_tree.pre_order(child);
+
+    p += jumps[ii];
+
+    node = child;
+
+    return path(node,str,p);
+
+}
+
+
+
+
 
 bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node, const m_patricia::compact_patricia_tree::K & str, compact_patricia_tree::ulong & p, const compact_patricia_tree::ulong &limit) const{
 

@@ -17,7 +17,7 @@ const std::string dirFolder [] = {
 const std::string dircollection [] = {
 
         "dna",
-        ///"dna222",
+        ////"dna222",
         "dna.50MB",
         "dna.100MB",
         "dna.200MB",

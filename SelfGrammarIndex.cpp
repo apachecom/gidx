@@ -267,18 +267,43 @@ void SelfGrammarIndex::find_second_occ(long int & offset, unsigned int & node, s
     const auto& Tg = _g.get_parser_tree();
     std::deque<std::pair< uint, long int >> S;
 
-     ///////////auto start = timer::now();
+    {
+        size_t pre = Tg.pre_order(node);
+        size_t Xi = _g[pre];
+        size_t n_s_occ = _g.n_occ(Xi);
+        for (size_t i = 1; i <= n_s_occ; ++i)
+        {
+            /*size_t node_occ_pre = _g.select_occ(Xi,i);
+            size_t current = Tg[node_occ_pre];
+            auto current_parent = Tg.parent(current);
+            long int p_offset = offset + _g.offsetText(current) - _g.offsetText(current_parent) ;
+            */size_t pre_parent = _g.select_occ(Xi,i);
+            S.emplace_back(pre_parent,offset);
+        }
+    }
 
-    //////uint count = 0;
-
+/*
     {
         uint pre_node = Tg.pre_order(node);
         uint Xi = _g[pre_node];
         uint n_s_occ = _g.n_occ(Xi);
+        if(pre_node == 1)
+        {
+            occ[offset] = true;
+            return;
+        }
+        for (uint  i = 1; i <= n_s_occ; ++i)
+        {
+            size_t node_occ_pre = _g.select_occ(Xi,i);
+            size_t current = Tg[node_occ_pre];
+            auto current_parent = Tg.parent(current);
+            long int p_offset = offset + _g.offsetText(current) - _g.offsetText(current_parent) ;
+            S.emplace_back(node_occ_pre,p_offset);
+        }
 
 
 
-        size_t current_parent = Tg.parent(node);
+        /*size_t current_parent = Tg.parent(node);
         long int p_offset = offset + _g.offsetText(node) - _g.offsetText(current_parent);
 
         if(pre_node == 1)
@@ -310,7 +335,7 @@ void SelfGrammarIndex::find_second_occ(long int & offset, unsigned int & node, s
             }
 
         }while(!_g.isLastOcc(node_occ_pre));
-
+*/
 /*
         for (uint  i = 1; i < n_s_occ; ++i)
         {
@@ -330,36 +355,36 @@ void SelfGrammarIndex::find_second_occ(long int & offset, unsigned int & node, s
 
         }
 
-*/
+*//*
     }
-
+*/
     ////uint steps = 0;
     while(!S.empty())
     {
 
         ///std::pair<size_t , long int > front_pair = S.front();
-        size_t current = Tg.parent(Tg[S.front().first]);
-        size_t pre_current = Tg.pre_order(current);
-        size_t Xi = _g[pre_current];
-        size_t n_s_occ = _g.n_occ(Xi);
-        {
-            size_t current_parent = Tg.parent(current);
-            long int p_offset = S.front().second + _g.offsetText(current) - _g.offsetText(current_parent);
 
-            if(pre_current == 1)
-            {
-                occ[p_offset] = true;
-            }
-            else
-            {
-                S.emplace_back(pre_current,p_offset);
-            }
+        if(S.front().first == 1)
+        {
+            occ[S.front().second ] = true;
         }
-
-
-        if(pre_current != 1)
+        else
         {
-            uint i = 1,node_occ_pre = 0;
+            auto node = Tg[S.front().first];
+            size_t parent = Tg.parent(node);
+            size_t pre_parent = Tg.pre_order(parent);
+            size_t Xi = _g[pre_parent];
+            size_t n_s_occ = _g.n_occ(Xi);
+            long int p_offset = S.front().second + _g.offsetText(node) - _g.offsetText(parent);
+            for (size_t i = 1; i <= n_s_occ; ++i)
+            {
+                size_t pre_parent = _g.select_occ(Xi,i);
+                S.emplace_back(pre_parent,p_offset);
+            }
+
+
+
+           /* uint i = 1,node_occ_pre = 0;
 
             do{
                 node_occ_pre = _g.select_occ(Xi,++i);
@@ -376,7 +401,7 @@ void SelfGrammarIndex::find_second_occ(long int & offset, unsigned int & node, s
                     S.emplace_back(node_occ_pre,p_offset);
                 }
 
-            }while(!_g.isLastOcc(node_occ_pre));
+            }while(!_g.isLastOcc(node_occ_pre));*/
         }
 /*
         for (size_t i = 1; i < n_s_occ; ++i)
@@ -889,8 +914,8 @@ SelfGrammarIndex::bp_cmp_prefix(const compressed_grammar::g_long & X_i, std::str
     if(_g.isTerminal(X_i))
     {
         unsigned char a_th = _g.terminal_simbol(X_i); // a_th symbol in the sorted alphabet
-        if(a_th < *itera) return 1;
-        if(a_th > *itera) return  -1;
+        if(a_th < (unsigned char)(*itera)) return 1;
+        if(a_th > (unsigned char)(*itera)) return  -1;
         ++itera;
         ///if(itera == end) return 0;
         return 0;
@@ -935,8 +960,8 @@ SelfGrammarIndex::bp_cmp_prefix(const compressed_grammar::g_long & X_i, std::str
 
         unsigned char a_th = _g.terminal_simbol(X_a); // a_th symbol in the sorted alphabet
 
-        if(a_th < *itera) return 1;
-        if(a_th > *itera) return -1;
+        if(a_th < (unsigned char)(*itera)) return 1;
+        if(a_th > (unsigned char)(*itera)) return -1;
         ++itera;
         if(itera == end) return 0;
     }
@@ -976,8 +1001,8 @@ SelfGrammarIndex::bp_cmp_suffix(const compressed_grammar::g_long & X_i, std::str
     if(_g.isTerminal(X_i))
     {
         unsigned char a_th = _g.terminal_simbol(X_i); // a_th symbol in the sorted alphabet
-        if(a_th < *(itera)) return 1;
-        if(a_th > *(itera)) return  -1;
+        if(a_th < (unsigned char)(*itera)) return 1;
+        if(a_th > (unsigned char)(*itera)) return  -1;
         --itera;
         return 0;
         ////if(itera == end) return 0;
@@ -1020,8 +1045,8 @@ SelfGrammarIndex::bp_cmp_suffix(const compressed_grammar::g_long & X_i, std::str
 
         unsigned char a_th = _g.terminal_simbol(X_a); // a_th symbol in the sorted alphabet
 
-        if(a_th < *(itera)) return 1;
-        if(a_th > *(itera)) return  -1;
+        if(a_th < (unsigned char)(*itera)) return 1;
+        if(a_th > (unsigned char)(*itera)) return  -1;
         --itera;
         if(itera == end-1) return 0;
     }
@@ -1091,4 +1116,30 @@ int SelfGrammarIndex::bp_cmp_suffix_grammar(const size_t & sfx, std::string::ite
     }
 
     return r;
+}
+
+void SelfGrammarIndex::locate_ch(const char & ch, sdsl::bit_vector & occ) {
+
+    const auto& alp = _g.get_alp();
+
+    auto p = std::find(alp.begin(),alp.end(),ch);
+
+    if(p == alp.end()) return;
+
+    unsigned int rk = p - alp.begin()+1;
+    auto X_a = _g.terminal_rule(rk);
+
+    const auto& Tg = _g.get_parser_tree();
+    size_t n_s_occ = _g.n_occ(X_a);
+    for (size_t i = 1; i <= n_s_occ; ++i)
+    {
+        size_t node_occ_pre = _g.select_occ(X_a,i);
+        size_t current = Tg[node_occ_pre];
+        auto current_parent = Tg.parent(current);
+        long int p_offset = _g.offsetText(current) - _g.offsetText(current_parent) ;
+        find_second_occ(p_offset,current_parent,occ);
+
+    }
+
+    return;
 }

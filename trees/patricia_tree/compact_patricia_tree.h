@@ -18,6 +18,7 @@ namespace m_patricia {
     protected:
         typedef unsigned int ulong;
         typedef m_patricia::string_pairs K;
+        typedef m_patricia::rev_string_pairs revK ;
         typedef m_patricia::patricia_tree<K> T;
         typedef dfuds::dfuds_tree tree;
         typedef sdsl::int_vector<> seq_alf;
@@ -38,6 +39,7 @@ namespace m_patricia {
         void build(const m_patricia::patricia_tree<m_patricia::rev_string_pairs> &);
 
         ulong node_match(const K &) const;
+        ulong node_match(const revK &) const;
 
         ulong node_locus(const K &, const ulong &) const;
 
@@ -56,6 +58,7 @@ namespace m_patricia {
 
     protected:
         bool path(ulong &, const K &str, ulong &) const;
+        bool path(ulong &, const revK &str, ulong &) const;
 
         bool path(ulong &, const K &str, ulong &, const ulong &limit) const;
 

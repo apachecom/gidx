@@ -179,26 +179,6 @@ void SelfGrammarIndexPT::build(std::string &text) {
         sfx_p_tree.build(T);
         std::cout<<"sfx_p_tree size "<<sfx_p_tree.size_in_bytes()<<std::endl;
         sfx_p_tree.print_size_in_bytes();
-        const auto& m_tree = sfx_p_tree.get_tree();
-        m_tree.print();
-        const auto& seq = sfx_p_tree.get_seq();
-        const auto& jmp = sfx_p_tree.get_jumps();
-
-        std::cout<<"sequence :";
-        for (auto &&  ii:seq )
-        {
-            std::cout<<(char)ii<<" ";
-        }
-        std::cout<<std::endl;
-
-        std::cout<<"jmps :";
-        for (auto &&  ii:jmp )
-        {
-            std::cout<<ii<<" ";
-        }
-        std::cout<<std::endl;
-
-
     }
 
     /*
@@ -215,48 +195,36 @@ void SelfGrammarIndexPT::build(std::string &text) {
             s.set_right(r.second.r);
             T.insert(s);
         }
-
         rules_p_tree.build(T);
         std::cout<<"rules_p_tree size "<<rules_p_tree.size_in_bytes()<<std::endl;
         rules_p_tree.print_size_in_bytes();
-        const auto& m_tree = rules_p_tree.get_tree();
-        m_tree.print();
-        const auto& seq = rules_p_tree.get_seq();
-        const auto& jmp = rules_p_tree.get_jumps();
 
-        std::cout<<"sequence :";
-        for (auto &&  ii:seq )
-        {
-            std::cout<<(char)ii<<" ";
-        }
-        std::cout<<std::endl;
-
-        std::cout<<"jmps :";
-        for (auto &&  ii:jmp )
-        {
-            std::cout<<ii<<" ";
-        }
-        std::cout<<std::endl;
 
 
     }
 
 }
 
-size_t SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ) {
+void SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ) {
+
+    if(pattern.size() == 1)
+    {
+        locate_ch(pattern[0],occ);
+        return;
+    }
 
     size_t p_n = pattern.size();
-    size_t n_sj = grid.n_columns();
+    ///size_t n_sj = grid.n_columns();
 
-    vector<size_t > S (n_sj,1);
+    /*vector<size_t > S (n_sj,1);
     for (size_t j = 0; j < n_sj; ++j)
-        S[j] = j+1;
+        S[j] = j+1;*/
 
     /////std::cout<<"////////////////////////cadena "<<pattern<<" /////////////////////////////////////////////////////////////////"<<std::endl;
     for (size_t i = 1; i <= p_n ; ++i)
     {
         // CREATE PARTITIONS
-        std::cout<<"////////////////////////PARTITION "<<i<<" /////////////////////////////////////////////////////////////////"<<std::endl;
+        /////std::cout<<"////////////////////////PARTITION "<<i<<" /////////////////////////////////////////////////////////////////"<<std::endl;
         std::string p1,p2;
         p1.resize(i);
         p2.resize(p_n-i);
@@ -281,41 +249,51 @@ size_t SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ
          *
          * */
 
-        m_patricia::string_pairs sp1(p1,1);
+        m_patricia::rev_string_pairs sp1(pattern,1);
         sp1.set_left(0);
-        sp1.set_right(p1.size()-1);
+        sp1.set_right(i-1);
 
         const auto& rules_t = rules_p_tree.get_tree();
         auto node_match_rules = rules_p_tree.node_match(sp1);
         const auto& rules_leaf = rules_t.leafrank(node_match_rules);
 
 
+        auto begin_rule_string = pattern.begin();
+        auto end_rule_string = itera;
+        auto r = bp_cmp_suffix(rules_leaf,end_rule_string,begin_rule_string);
+        if(r != 0 || end_rule_string+1 != begin_rule_string)
+            continue;
 
-        std::string s_rule;
-        s_rule.resize(p1.size());
-        size_t pos_sr = 0;
-        expand_suffix(rules_leaf,s_rule,sp1.size(),pos_sr);
-        std::reverse(s_rule.begin(),s_rule.end());
+        size_t p_r1 = rules_t.leafrank(node_match_rules);
+        size_t p_r2 = p_r1 + rules_t.leafnum(node_match_rules) - 1;
 
-        unsigned long p = 0;
-        while(p < sp1.size() && s_rule[p] == sp1[p]) ++p;
 
-        if(p == 0 && !sp1.empty()) continue;
 
-        auto node_locus_rules = rules_p_tree.node_locus(sp1,p);
-        std::pair<size_t , size_t > rows(0,0);
-        rows.first = rules_t.leafrank(node_locus_rules);
-        rows.first = rows.first + rules_t.leafnum(node_locus_rules) - 1;
-        ////auto stop = timer::now();
-        ////std::cout<<"\t\trules PT search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
-        std::cout<<" rule PT search"<<std::endl;
-        /////auto start = timer::now();
+        /* std::string s_rule;
+         s_rule.resize(p1.size());
+         size_t pos_sr = 0;
+         expand_suffix(rules_leaf,s_rule,sp1.size(),pos_sr);
+         std::reverse(s_rule.begin(),s_rule.end());
 
-        //////////////////////////////////////////////////////////////
-        size_t p_r1 = rows.first,p_r2 = rows.second;
-        if(p_r1 == 0 && p_r2 == 0)continue;
-        ////std::cout<<"rows_1("<<p_r1<<") \t rows_2)("<<p_r2<<")\n";
+         unsigned long p = 0;
+         while(p < sp1.size() && s_rule[p] == sp1[p]) ++p;
 
+         if(p == 0 && !sp1.empty()) continue;
+
+         auto node_locus_rules = rules_p_tree.node_locus(sp1,p);
+         std::pair<size_t , size_t > rows(0,0);
+         rows.first = rules_t.leafrank(node_locus_rules);
+         rows.first = rows.first + rules_t.leafnum(node_locus_rules) - 1;
+         ////auto stop = timer::now();
+         ////std::cout<<"\t\trules PT search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
+         std::cout<<" rule PT search"<<std::endl;
+         /////auto start = timer::now();
+
+         //////////////////////////////////////////////////////////////
+         size_t p_r1 = rows.first,p_r2 = rows.second;
+         if(p_r1 == 0 && p_r2 == 0)continue;
+         ////std::cout<<"rows_1("<<p_r1<<") \t rows_2)("<<p_r2<<")\n";
+ */
 
         //// start = timer::now();
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -326,19 +304,22 @@ size_t SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ
         *
         * */
 
-        m_patricia::string_pairs sp2(p2,2);
-        sp2.set_left(0);
-        sp2.set_right(p2.size()-1);
+        m_patricia::string_pairs sp2(pattern,2);
+        sp2.set_left(i);
+        sp2.set_right(pattern.size()-1);
 
-        const auto& suff_t = rules_p_tree.get_tree();
-        auto node_match_suff = rules_p_tree.node_match(sp2);
-        const auto& suff_leaf = rules_t.leafrank(node_match_suff);
+        const auto& suff_t = sfx_p_tree.get_tree();
+        auto node_match_suff = sfx_p_tree.node_match(sp2);
+        const auto& suff_leaf = suff_t.leafrank(node_match_suff);
 
-        auto begin_rule_string = pattern.begin();
-        auto end_rule_string = itera;
-        auto r = bp_cmp_suffix(suff_leaf,end_rule_string,begin_rule_string);
-        if(r != 0 && end_rule_string+1 == ) continue;
+         auto begin_sfx_string = itera+1;
+         auto end_sfx_string = pattern.end() ;
+         r = bp_cmp_suffix_grammar(suff_leaf,begin_sfx_string,end_sfx_string);
+        if(r != 0 )
+            continue;
 
+        size_t p_c1 = suff_t.leafrank(node_match_suff);
+        size_t p_c2 = p_c1 + suff_t.leafnum(node_match_suff) - 1;
 
         /*std::string s_sufx;
         expand_grammar_sfx((rules_leaf-1)*sampling + 1,s_sufx,p2.size());
@@ -347,7 +328,7 @@ size_t SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ
         while(p < sp2.size() && s_sufx[p] == sp2[p]) ++p;
         if(p == 0 && !sp1.empty()) continue;
         */
-        auto node_locus_suff = sfx_p_tree.node_locus(sp2,p);
+  /*      auto node_locus_suff = sfx_p_tree.node_locus(sp2,p);
         std::pair<size_t , size_t > cols(0,0);
         cols.first = rules_t.leafrank(node_locus_suff);
         cols.first = rows.first + rules_t.leafnum(node_locus_rules) - 1;
@@ -355,13 +336,13 @@ size_t SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ
 
         size_t p_c1 = cols.first,p_c2 = cols.second;
         if(p_c1 == 0 && p_c2 == 0)continue;
-
-        sampling_range_suff(p_c1,p_c2,S,p2);
+*/
+      ////  sampling_range_suff(p_c1,p_c2,S,p2);
 
         ////stop = timer::now();
         ////std::cout<<"\t\tbinary search logn sampling "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
 
-        std::cout<<" sfx PT search"<<std::endl;
+        //std::cout<<" sfx PT search"<<std::endl;
 
 
         // CHECK THE RANGE
@@ -369,7 +350,7 @@ size_t SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ
         ////start = timer::now();
 
         /////////////////////////////////////////////////////////////////////////////////////////
-        std::string p1s , p2s;
+  /*      std::string p1s , p2s;
         expand_grammar_sfx(p_r1,p1s,p1.length());
         ///std::cout<<"rows_1: "<<p1s<<std::endl;
         if(p1 != p1s) continue;
@@ -386,13 +367,13 @@ size_t SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ
         expand_grammar_sfx(p_c2,p2s,p2.length());
         ///std::cout<<"cols_2: "<<p2s<<std::endl;
         if(p2 != p2s) continue;
-        /////////////////////////////////////////////////////////////////////////////////////////
+    */    /////////////////////////////////////////////////////////////////////////////////////////
 
         ////stop = timer::now();
         ////std::cout<<"\t\tcheck ranges time:" <<duration_cast<nanoseconds>(stop-start).count()<<"(ns)"<<std::endl;
         // CHECK THE RANGE
 
-        std::cout<<" CHECK THE RANGE"<<std::endl;
+        std::cout<<" END THE PATRICIA TREE"<<std::endl;
 
         std::vector< std::pair<size_t,size_t> > pairs;
         ////start = timer::now();
@@ -419,7 +400,7 @@ size_t SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ
             size_t p = grid.labels(pair.first, pair.second);
             size_t pos_p = _g.offsetText(g_tree[p]);
             unsigned int parent = g_tree.parent(g_tree[p]);
-            long int  l = - len + pos_p - _g.offsetText(parent);
+            long int  l = (- len + pos_p) - _g.offsetText(parent);
 
 
             ///start = timer::now();

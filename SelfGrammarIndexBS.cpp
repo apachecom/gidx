@@ -30,7 +30,7 @@ void SelfGrammarIndexBS::build(std::string & text) {
     std::cout<<"\t total size of rules "<<not_compressed_grammar.get_size()<<std::endl;
     std::cout<<"\t size of the representation "<<not_compressed_grammar.size_in_bytes()*1/(1024*1024)<<"(mb)"<<std::endl;
 
-    /////not_compressed_grammar.print(text);
+    ///not_compressed_grammar.print(text);
 
 
     /*
@@ -173,8 +173,14 @@ void SelfGrammarIndexBS::build(std::string & text) {
 
 }
 
-size_t SelfGrammarIndexBS::locate( std::string & pattern, sdsl::bit_vector & occ)
+void SelfGrammarIndexBS::locate( std::string & pattern, sdsl::bit_vector & occ)
 {
+
+    if(pattern.size() == 1)
+    {
+        locate_ch(pattern[0],occ);
+        return;
+    }
 
 
     size_t p_n = pattern.size();
@@ -189,14 +195,14 @@ size_t SelfGrammarIndexBS::locate( std::string & pattern, sdsl::bit_vector & occ
     {
 
 
-  /*          std::string p1,p2;
+            std::string p1,p2;
             p1.resize(i);
             p2.resize(p_n-i);
 
             std::copy(pattern.begin(),pattern.begin()+i,p1.begin());
             std::copy(pattern.begin()+i,pattern.end(),p2.begin());
             std::reverse(p1.begin(),p1.end());
-*/
+
         ///std::cout<<"************************************************************"<<std::endl;
         auto itera = pattern.begin() + i-1;
        ////// auto start = timer::now();

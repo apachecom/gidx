@@ -47,10 +47,12 @@ static void grammar_big_size(benchmark::State& state) {
         uint size = state.range(2);
 
 
-        std::fstream f_trie("not_compress_patricia_tree" + dircollection[coll], std::ios::out | std::ios::binary);
+
+
+        ///std::fstream f_trie("not_compress_patricia_tree" + dircollection[coll], std::ios::out | std::ios::binary);
         patricia_tree<string_pairs> T;
         uint id = 0;
-        for (int i = 0; i < size; ++i) {
+        for (int i = 0; i < data.size(); ++i) {
             string_pairs s(data,++id);
             s.set_left(i);
             s.set_right(size);
@@ -63,22 +65,24 @@ static void grammar_big_size(benchmark::State& state) {
         std::cout<<"Number of internal nodes "<<T.num_internal_nodes()<<std::endl;
         std::cout<<"Number of leaves nodes "<<T.num_leaves()<<std::endl;
         std::cout<<"Number of total nodes "<<T.num_total_nodes()<<std::endl;
-        T.save(f_trie);
-        f_trie.close();
+        //T.save(f_trie);
+        ///f_trie.close();
+        T.print();
 
-        std::fstream f_cg("compress_patricia_tree" + dircollection[coll], std::ios::out| std::ios::binary);
+       // std::fstream f_cg("compress_patricia_tree" + dircollection[coll], std::ios::out| std::ios::binary);
         compact_patricia_tree c_trie;
         c_trie.build(T);
-        c_trie.save(f_cg);
-        f_cg.close();
+
+       // c_trie.save(f_cg);
+      //  f_cg.close();
 
     }
 }
 
-
+BENCHMARK(grammar_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA50,  10000000})->Unit(benchmark::kMillisecond);
 BENCHMARK(grammar_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA100, 10000000})->Unit(benchmark::kMillisecond);
 BENCHMARK(grammar_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA200, 10000000})->Unit(benchmark::kMillisecond);
 BENCHMARK(grammar_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA,    10000000})->Unit(benchmark::kMillisecond);
-BENCHMARK(grammar_big_size)->Args({dataDir::dir_DNA, dataCollection::DNA50,  10000000})->Unit(benchmark::kMillisecond);
+
 
 BENCHMARK_MAIN();

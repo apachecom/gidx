@@ -21,10 +21,9 @@ class compressed_grammar {
         typedef grammar plain_grammar;
         typedef  dfuds::dfuds_tree parser_tree;
         typedef  sdsl::wt_ap< sdsl::wt_huff<sdsl::bit_vector, sdsl::rank_support_v5<>> ,sdsl::wm_int<> > wavelet_tree;
-        typedef  sdsl::bit_vector z_vector;
-        typedef  sdsl::bit_vector y_vector;
-        typedef  sdsl::bit_vector l_vector;
-        typedef  sdsl::bit_vector ls_occ_vector;
+        typedef  sdsl::sd_vector<> z_vector;
+        typedef  sdsl::sd_vector<> y_vector;
+        typedef  sdsl::sd_vector<> l_vector;
         typedef  sdsl::int_vector<> compact_perm;
         typedef  sdsl::inv_perm_support<> inv_compact_perm;
     protected:
@@ -44,6 +43,7 @@ class compressed_grammar {
 
         y_vector Y; // marks the rules Xi -> a
         y_vector::rank_1_type rank_Y;
+        y_vector::select_1_type select_Y;
         l_vector L; // marks the init position of each Xi in T
         l_vector::select_1_type select_L;
 
@@ -51,7 +51,7 @@ class compressed_grammar {
         /*
          * last occ of every simbol in X_p
          * */
-        ls_occ_vector l_occ_xp;
+        ///ls_occ_vector l_occ_xp;
         /*
          * Trie store the lefth/right most path of every node in the parser tree that is not a leaf
          */
@@ -117,6 +117,10 @@ class compressed_grammar {
          * */
         unsigned char terminal_simbol(const g_long& i) const;
         /*
+         * return the i-th terminal rule in lexicographical order
+         * */
+        g_long terminal_rule(const g_long& i) const;
+        /*
          * Return the position in the text associated to the i-th
          * node in preorder in the grammar tree
          * */
@@ -155,7 +159,7 @@ class compressed_grammar {
 
         g_long get_size_text() const;
 
-
+        const std::vector<unsigned char> get_alp() const;
         /*
          *
          * */

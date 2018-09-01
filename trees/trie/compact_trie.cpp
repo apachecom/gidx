@@ -112,9 +112,13 @@ void compact_trie::load(std::fstream &f) {
 
 void compact_trie::save(std::fstream &f)const
 {
+    std::cout<<"\t\tsaving compac_trie"<<std::endl;
     sdsl::serialize(seq,f);
+    std::cout<<"\t\t\tsdsl::serialize(seq,f);"<<std::endl;
     sdsl::serialize(inv_seq,f);
+    std::cout<<"\t\t\tsdsl::serialize(inv_seq,f);"<<std::endl;
     m_tree.save(f);
+    std::cout<<"\t\t\tm_tree.save(f);"<<std::endl;
 }
 
 void compact_trie::print_size_in_bytes(const std::string &s) const {

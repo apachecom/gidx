@@ -100,6 +100,7 @@ void compressed_grammar::build(compressed_grammar::plain_grammar &grammar) {
 
         Y = sdsl::bit_vector(_Y);
         rank_Y = y_vector::rank_1_type(&Y);
+        select_Y = y_vector::select_1_type(&Y);
     }
 
     /*
@@ -207,7 +208,7 @@ void compressed_grammar::build(compressed_grammar::plain_grammar &grammar) {
         xp_file.close();
         sdsl::construct(X_p, "xp_file", 0);
 
-        {
+        /*{
             l_occ_xp = ls_occ_vector(v_sq.size(),0);
             std::set<uint> MM;
 
@@ -220,7 +221,7 @@ void compressed_grammar::build(compressed_grammar::plain_grammar &grammar) {
 
             }
 
-        }
+        }*/
 
 
 
@@ -336,27 +337,44 @@ void compressed_grammar::print_size_in_bytes() {
 
 void compressed_grammar::save(std::fstream &f) {
 
-    sdsl::serialize(X_p      ,f);
+    std::cout<<"saving compressed_grammar\n";
+    X_p.serialize(f);
+    //sdsl::serialize(X_p      ,f);
+    std::cout<<"\tsdsl::serialize(X_p      ,f);\n";
     sdsl::serialize(Z        ,f);
+    std::cout<<"\tsdsl::serialize(Z        ,f);\n";
     sdsl::serialize(select0_Z,f);
+    std::cout<<"\tsdsl::serialize(select0_Z,f);\n";
     sdsl::serialize(select1_Z,f);
+    std::cout<<"\tsdsl::serialize(select1_Z,f);\n";
     sdsl::serialize(rank1_Z  ,f);
+    std::cout<<"\tsdsl::serialize(rank1_Z  ,f);\n";
     sdsl::serialize(rank0_Z  ,f);
+    std::cout<<"\tsdsl::serialize(rank0_Z  ,f);\n";
     sdsl::serialize(F        ,f);
+    std::cout<<"\tsdsl::serialize(F        ,f);\n";
     sdsl::serialize(F_inv    ,f);
+    std::cout<<"\t sdsl::serialize(F_inv    ,f);\n";
     sdsl::serialize(Y        ,f);
+    std::cout<<"\tsdsl::serialize(Y        ,f);\n";
     sdsl::serialize(rank_Y   ,f);
+    std::cout<<"\t sdsl::serialize(rank_Y   ,f);\n";
     sdsl::serialize(L        ,f);
+    std::cout<<"\tsdsl::serialize(L        ,f);\n";
     sdsl::serialize(select_L ,f);
+    std::cout<<"\tsdsl::serialize(select_L ,f);\n";
     m_tree.save(f);
+    std::cout<<"\tm_tree.sav    e(f);\n";
     left_path.save(f);
+    std::cout<<"\tleft_path.save(f);\n";
     right_path.save(f);
+    std::cout<<"\tright_path.save(f);\n";
 
 }
 
 void compressed_grammar::load(std::fstream & f) {
-
-    sdsl::load(X_p      ,f);
+    X_p.load(f);
+    //sdsl::load(X_p      ,f);
     sdsl::load(Z        ,f);
     sdsl::load(select0_Z,f);
     sdsl::load(select1_Z,f);
@@ -375,6 +393,7 @@ void compressed_grammar::load(std::fstream & f) {
     sdsl::load(Y        ,f);
     sdsl::load(rank_Y   ,f);
     rank_Y = y_vector::rank_1_type(&Y);
+    select_Y = y_vector::select_1_type(&Y);
     sdsl::load(L        ,f);
     sdsl::load(select_L ,f);
     select_L = l_vector::select_1_type(&L);
@@ -595,11 +614,12 @@ unsigned char compressed_grammar::terminal_simbol(const g_long &i) const{
 compressed_grammar::g_long compressed_grammar::get_size_text() const {
     return L.size();
 }
-
+/*
 bool compressed_grammar::isLastOcc(const compressed_grammar::g_long &j) const {
     if(Z[j-1]) return false;
     return l_occ_xp[rank0_Z(j-1)];
 }
+ */
 
 compressed_grammar &compressed_grammar::operator=(const compressed_grammar & G) {
 
@@ -618,13 +638,22 @@ compressed_grammar &compressed_grammar::operator=(const compressed_grammar & G) 
     select_L = l_vector::select_1_type(&L);
     Y = G.Y;
     rank_Y = y_vector::rank_1_type(&Y);
+    select_Y = y_vector::select_1_type(&Y);
     left_path = G.left_path;
     right_path = G.right_path;
-    l_occ_xp = G.l_occ_xp;
+    ///l_occ_xp = G.l_occ_xp;
     alp = G.alp;
 
     return *this;
 
+}
+
+const std::vector<unsigned char> compressed_grammar::get_alp() const {
+    return alp;
+}
+
+compressed_grammar::g_long compressed_grammar::terminal_rule(const compressed_grammar::g_long &i) const {
+    return select_Y(i);
 }
 
 

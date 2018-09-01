@@ -21,7 +21,7 @@ public:
 
     void build(const grammar_representation&, const range_search2d& );
 
-    size_t locate( std::string& , sdsl::bit_vector &) override;
+    void locate( std::string& , sdsl::bit_vector &) override;
     void display(const std::size_t& , const std::size_t&, std::string & ) override ;
 
 

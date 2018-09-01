@@ -36,7 +36,7 @@ class SelfGrammarIndexPT: protected SelfGrammarIndex {
         void build(const grammar_representation&, const range_search2d& ) override ;
         void build(const grammar_representation&, const range_search2d&, const m_patricia::compact_patricia_tree&,const m_patricia::compact_patricia_tree& ) ;
 
-        size_t locate( std::string& , sdsl::bit_vector &) override ;
+        void locate( std::string& , sdsl::bit_vector &) override ;
 
         void display(const std::size_t& , const std::size_t&, std::string & ) override ;
 
