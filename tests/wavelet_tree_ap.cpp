@@ -47,14 +47,14 @@ static void wavelet_tree_ap_big_size(benchmark::State& state)
         {
 
             sdsl::wt_blcd<> X;
-            //sdsl::construct(X,"wt",0);
-            //std::cout<<"constructed"<<std::endl;
+            /*sdsl::construct(X,"wt",0);
+            std::cout<<"constructed"<<std::endl;
+*/
 
 
-    
             std::fstream fw_f("wt_f", std::ios::in| std::ios::binary);
             sdsl::load(X,fw_f);
-            ////sdsl::load(Xdata,fw_f);
+           // sdsl::serialize(Xdata,fw_f);
 
             std::cout<<"wt_ap (build on file)\n";
             std::cout<<"size in mb : "<<sdsl::size_in_mega_bytes(X)<<std::endl;

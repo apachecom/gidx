@@ -908,7 +908,7 @@ bool SelfGrammarIndex::bp_expand_suffix(const compressed_grammar::g_long &X_i,st
 }
 
 int
-SelfGrammarIndex::bp_cmp_prefix(const compressed_grammar::g_long & X_i, std::string::iterator & itera, std::string::iterator & end) {
+SelfGrammarIndex::bp_cmp_prefix(const compressed_grammar::g_long & X_i, std::string::iterator & itera, std::string::iterator & end) const {
     assert(X_i > 0 && X_i < _g.n_rules());
 
     if(_g.isTerminal(X_i))
@@ -994,7 +994,7 @@ SelfGrammarIndex::bp_cmp_prefix(const compressed_grammar::g_long & X_i, std::str
 }
 
 int
-SelfGrammarIndex::bp_cmp_suffix(const compressed_grammar::g_long & X_i, std::string::iterator & itera, std::string::iterator & end) {
+SelfGrammarIndex::bp_cmp_suffix(const compressed_grammar::g_long & X_i, std::string::iterator & itera, std::string::iterator & end) const{
 
     assert(X_i > 0 && X_i < _g.n_rules());
 
@@ -1081,7 +1081,7 @@ SelfGrammarIndex::bp_cmp_suffix(const compressed_grammar::g_long & X_i, std::str
 
 }
 
-int SelfGrammarIndex::bp_cmp_suffix_grammar(const size_t & sfx, std::string::iterator & iterator1, std::string::iterator & iterator2) {
+int SelfGrammarIndex::bp_cmp_suffix_grammar(const size_t & sfx, std::string::iterator & iterator1, std::string::iterator & iterator2) const {
 
     if(iterator1 == iterator2)
     {

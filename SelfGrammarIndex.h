@@ -56,7 +56,7 @@ class SelfGrammarIndex {
         void find_second_occ(long int& , unsigned int &, sdsl::bit_vector& ) const ;
 
         template <typename  K>
-        bool lower_bound(grammar_representation::g_long& lr,grammar_representation::g_long& hr, const K &f)
+        bool lower_bound(grammar_representation::g_long& lr,grammar_representation::g_long& hr, const K &f) const
         {
             if (lr >= hr || lr+1 == hr )
             {
@@ -105,7 +105,7 @@ class SelfGrammarIndex {
         }
 
         template <typename  K>
-        bool upper_bound(grammar_representation::g_long& lr,grammar_representation::g_long& hr, const K &f)
+        bool upper_bound(grammar_representation::g_long& lr,grammar_representation::g_long& hr, const K &f) const
         {
             if (lr >= hr || lr+1 == hr )
             {
@@ -158,9 +158,9 @@ class SelfGrammarIndex {
         int cmp_suffix(const grammar_representation::g_long &,std::string::iterator&, std::string::iterator& );
         int cmp_suffix_grammar(const size_t & ,std::string::iterator&, std::string::iterator& );
 
-        int bp_cmp_prefix(const grammar_representation::g_long &,std::string::iterator&, std::string::iterator& );
-        int bp_cmp_suffix(const grammar_representation::g_long &,std::string::iterator&, std::string::iterator& );
-        int bp_cmp_suffix_grammar(const size_t & ,std::string::iterator&, std::string::iterator& );
+        int bp_cmp_prefix(const grammar_representation::g_long &,std::string::iterator&, std::string::iterator& )const;
+        int bp_cmp_suffix(const grammar_representation::g_long &,std::string::iterator&, std::string::iterator& )const;
+        int bp_cmp_suffix_grammar(const size_t & ,std::string::iterator&, std::string::iterator& )const;
 
 
 };

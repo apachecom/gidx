@@ -338,8 +338,7 @@ void compressed_grammar::print_size_in_bytes() {
 void compressed_grammar::save(std::fstream &f) {
 
     std::cout<<"saving compressed_grammar\n";
-    X_p.serialize(f);
-    //sdsl::serialize(X_p      ,f);
+    sdsl::serialize(X_p      ,f);
     std::cout<<"\tsdsl::serialize(X_p      ,f);\n";
     sdsl::serialize(Z        ,f);
     std::cout<<"\tsdsl::serialize(Z        ,f);\n";
@@ -373,8 +372,8 @@ void compressed_grammar::save(std::fstream &f) {
 }
 
 void compressed_grammar::load(std::fstream & f) {
-    X_p.load(f);
-    //sdsl::load(X_p      ,f);
+
+    sdsl::load(X_p      ,f);
     sdsl::load(Z        ,f);
     sdsl::load(select0_Z,f);
     sdsl::load(select1_Z,f);

@@ -27,7 +27,7 @@ namespace m_patricia {
         bool leaf;
         char ch;
 
-        std::multimap<char, edge> childs;
+        std::multimap<unsigned char, edge> childs;
         std::vector<ulong> ids;
 
 
@@ -326,7 +326,7 @@ namespace m_patricia {
 
             if (pos > s.size()) return n;
 
-            auto it = n->childs.find((char) s[pos]);
+            auto it = n->childs.find((unsigned char) s[pos]);
 
             if (it == n->childs.end()) return n;
 
@@ -344,7 +344,7 @@ namespace m_patricia {
 
             if (pos == limit) return n;
 
-            auto it = n->childs.find((char) s[pos]);
+            auto it = n->childs.find((unsigned char) s[pos]);
 
             if (it == n->childs.end()) return n;
 
@@ -410,7 +410,7 @@ namespace m_patricia {
             assert(i>=0 && i <= size());
 
             if(i == size())
-                return '$';
+                return 0;
             return (*text)[first + i];
             /*
             auto j = i/(sizeof(char)*CHAR_BIT);

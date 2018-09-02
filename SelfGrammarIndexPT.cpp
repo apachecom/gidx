@@ -25,7 +25,7 @@ void SelfGrammarIndexPT::build(std::string &text) {
     std::cout<<"\t total size of rules "<<not_compressed_grammar.get_size()<<std::endl;
     std::cout<<"\t size of the representation "<<not_compressed_grammar.size_in_bytes()*1/(1024*1024)<<"(mb)"<<std::endl;
 
-    /////not_compressed_grammar.print(text);
+   /// not_compressed_grammar.print(text);
 
 
     /*
@@ -34,7 +34,6 @@ void SelfGrammarIndexPT::build(std::string &text) {
     * */
     std::cout<<"Building compressed grammar"<<std::endl;
 
- /////   not_compressed_grammar.print(text);
     _g.build(not_compressed_grammar);
     _g.print_size_in_bytes();
     std::cout<<"total size of compressed grammar*******************"<<_g.size_in_bytes()<<std::endl;
@@ -77,7 +76,7 @@ void SelfGrammarIndexPT::build(std::string &text) {
     sdsl::algorithm::calculate_sa( (unsigned char*)text.c_str(),text.size(),SA);
     sdsl::inv_perm_support<> SA_1(&SA);
     sdsl::lcp_bitcompressed<> LCP;
-    sdsl::construct_im(LCP,text.c_str(),sizeof(char));
+    sdsl::construct_im(LCP,text.c_str(),sizeof(unsigned char));
     sdsl::rmq_succinct_sada<> rmq(&LCP);
 
 
@@ -121,16 +120,16 @@ void SelfGrammarIndexPT::build(std::string &text) {
 
               });
 
-
-    /*for (auto && sf  : grammar_sfx) {
+    /*uint ooo = 0;
+    for (auto && sf  : grammar_sfx) {
 
         std::string sfs;
         sfs.resize(sf.first.second - sf.first.first + 1);
         std::copy(text.begin()+sf.first.first,text.begin()+sf.first.second+1,sfs.begin());
-        std::cout<<sfs<<std::endl;
+        std::cout<<++ooo<<"->  "<<sfs<<std::endl;
 
-    }
-    */
+    }*/
+
 
     /*
      *
@@ -175,7 +174,7 @@ void SelfGrammarIndexPT::build(std::string &text) {
             s.set_right(grammar_sfx[i].first.second);
             T.insert(s);
         }
-
+//        T.print();
         sfx_p_tree.build(T);
         std::cout<<"sfx_p_tree size "<<sfx_p_tree.size_in_bytes()<<std::endl;
         sfx_p_tree.print_size_in_bytes();
@@ -195,9 +194,12 @@ void SelfGrammarIndexPT::build(std::string &text) {
             s.set_right(r.second.r);
             T.insert(s);
         }
+
+//        T.print();
         rules_p_tree.build(T);
         std::cout<<"rules_p_tree size "<<rules_p_tree.size_in_bytes()<<std::endl;
         rules_p_tree.print_size_in_bytes();
+
 
 
 
@@ -225,13 +227,13 @@ void SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ) 
     {
         // CREATE PARTITIONS
         /////std::cout<<"////////////////////////PARTITION "<<i<<" /////////////////////////////////////////////////////////////////"<<std::endl;
-        std::string p1,p2;
+        /*std::string p1,p2;
         p1.resize(i);
         p2.resize(p_n-i);
 
         std::copy(pattern.begin(),pattern.begin()+i,p1.begin());
         std::copy(pattern.begin()+i,pattern.end(),p2.begin());
-        std::reverse(p1.begin(),p1.end());
+        std::reverse(p1.begin(),p1.end());*/
         //BINARY SEARCH OVER THE Frev SORT RULES
         /////// std::cout<<"prefijo rev: "<<p1<<"\t sufijo: "<<p2;
         /////auto start = timer::now();
@@ -373,8 +375,6 @@ void SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ) 
         ////std::cout<<"\t\tcheck ranges time:" <<duration_cast<nanoseconds>(stop-start).count()<<"(ns)"<<std::endl;
         // CHECK THE RANGE
 
-        std::cout<<" END THE PATRICIA TREE"<<std::endl;
-
         std::vector< std::pair<size_t,size_t> > pairs;
         ////start = timer::now();
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -438,85 +438,85 @@ void SelfGrammarIndexPT::load(std::fstream & f_in) {
 
 }
 
-void SelfGrammarIndexPT::sampling_range_suff(size_t &i, size_t &j,std::vector<size_t >& S,const std::string& str) const {
+void SelfGrammarIndexPT::sampling_range_rules(size_t &i, size_t &j,std::vector<size_t >& S, std::string& str) const {
 
-    if(i != j){
+    if(i > 1) {
+        grammar_representation::g_long lb = 1, ub = sampling;
+        lower_bound(lb, ub, [&str, &i, this](const grammar_representation::g_long &a) -> int {
+            size_t id_sufix = (i - 2) * sampling + a;
 
-        if(i > 1){
+            auto begin = str.begin();
+            auto end = str.end();
 
-            auto r1 = std::lower_bound(S.begin(),S.end(),str,[&i,this](const size_t  &a, const std::string &s){
-                size_t  n_s = s.length();
-                std::string sufx;
-                size_t id_sufix = (i-2)*sampling + a;
-                expand_grammar_sfx(id_sufix,sufx,n_s);
-                if(std::strcmp(sufx.c_str(),s.c_str()) < 0) // s > a
-                    return 1;
-                return 0;
-            });
+            auto r = bp_cmp_suffix(id_sufix, end, begin);
 
-            i = ( r1 != S.end() ) ? *r1 : 1;
+            if (r == 0 && end != begin - 1) return 1;
 
-        }
-
-        auto sfx_n = grid.n_columns();
-        if( j <= sfx_n ){
-
-            size_t end = ( j + sampling <= sfx_n)? sampling:(sfx_n-j+1);
-
-            auto r2 = std::upper_bound(S.begin(),S.begin()+end,str,[&j,this](const std::string &s,const size_t &a){
-                size_t n_s = s.length();
-                std::string sufx;
-                size_t id_sufix = (j-1)*sampling + a;
-                expand_grammar_sfx(id_sufix,sufx,n_s);
-                if(s < sufx)
-                    return 1;
-                return 0;
-            });
-
-            j  = *(--r2);
-        }
-
-
-    }else{
-
-        auto sfx_n = grid.n_columns();
-
-        std::vector<uint> X(2*sampling);
-        for(uint i = 0 ; i < X.size(); ++i){
-            X[i] = i+1;
-        }
-
-        uint low = (i-1)*sampling, r = ( j + sampling <= sfx_n)? sampling:(sfx_n-j+1);
-
-        if(i > 1)
-            low = (i-2)*sampling;
-
-        auto r1 = std::lower_bound(X.begin(),X.begin()+r,str,[&low,this](const size_t  &a, const std::string &s){
-            size_t  n_s = s.length();
-            std::string sufx;
-            size_t id_sufix = low + a;
-            expand_grammar_sfx(id_sufix,sufx,n_s);
-            if(std::strcmp(sufx.c_str(),s.c_str()) < 0) // s > a
-                return 1;
-            return 0;
+            return r;
         });
 
-        i =  ( r1 != X.begin()+r ) ? *r1 : 1;
-
-
-        auto r2 = std::upper_bound(X.begin(),X.begin()+r,str,[&low,this](const std::string &s,const size_t &a){
-            size_t n_s = s.length();
-            std::string sufx;
-            size_t id_sufix = low + a;
-            expand_grammar_sfx(id_sufix,sufx,n_s);
-            if(s < sufx)
-                return 1;
-            return 0;
-        });
-
-        j = *(--r2);
+        i = lb;
     }
 
+    auto sfx_n = grid.n_columns();
+    if( j <= sfx_n )
+    {
+
+        grammar_representation::g_long  lb = 1, ub = ( j + sampling <= sfx_n)? sampling:(sfx_n-j+1);
+
+        upper_bound(lb,ub,[&str,&j,this](const grammar_representation::g_long & a)->int
+        {
+            size_t id_sufix = (j-1)*sampling + a;
+            auto end = str.end();
+            auto begin = str.begin();
+
+            auto r =  bp_cmp_suffix(id_sufix,begin,end);
+            return r;
+        });
+
+        j = ub;
+    }
+
+}
+
+void SelfGrammarIndexPT::sampling_range_suff(size_t &i, size_t &j,std::vector<size_t >& S, std::string& str) const {
+
+        if(i > 1) {
+            grammar_representation::g_long lb = 1, ub = sampling;
+            lower_bound(lb, ub, [&str, &i, this](const grammar_representation::g_long &a) -> int {
+                size_t id_sufix = (i - 2) * sampling + a;
+
+                auto begin = str.begin();
+                auto end = str.end();
+
+                auto r = bp_cmp_suffix_grammar(id_sufix, end, begin);
+
+                if (r == 0 && end != begin - 1) return 1;
+
+                return r;
+            });
+
+            i = lb;
+        }
+
+        auto sfx_n = grid.n_columns();
+        if( j <= sfx_n )
+        {
+
+            grammar_representation::g_long lb = 1, ub = ( j + sampling <= sfx_n)? sampling:(sfx_n-j+1);
+
+            upper_bound(lb,ub,[&str,&j,this](const grammar_representation::g_long & a)->int
+            {
+                size_t id_sufix = (j-1)*sampling + a;
+                auto end = str.end();
+                auto begin = str.begin();
+
+                auto r =  bp_cmp_suffix_grammar(id_sufix,begin,end);
+                return r;
+            });
+
+            j = ub;
+        }
 
 }
 

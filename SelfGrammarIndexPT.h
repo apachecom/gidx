@@ -22,9 +22,9 @@ class SelfGrammarIndexPT: protected SelfGrammarIndex {
         m_patricia::compact_patricia_tree rules_p_tree;
 
 
-        void sampling_range_suff(size_t& i, size_t& j,std::vector<size_t >&, const std::string&)const;
+        void sampling_range_suff(size_t& i, size_t& j,std::vector<size_t >&, std::string&)const;
 
-
+        void sampling_range_rules(size_t &i, size_t &j,std::vector<size_t >& S, std::string& str) const;
 
     public:
         SelfGrammarIndexPT() = default;

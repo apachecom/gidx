@@ -211,7 +211,7 @@ void grammar::preprocess(std::string & text) {
 
     sdsl::inv_perm_support<> SA_1(&SA);
     sdsl::lcp_wt<> LCP;
-    sdsl::construct_im(LCP,rev_text.c_str(),sizeof(char));
+    sdsl::construct_im(LCP, rev_text.c_str(),sizeof(unsigned char));
     sdsl::rmq_succinct_sada<true,sdsl::bp_support_sada<>> rmq(&LCP);
 
     std::vector<rule::r_long> rules(_grammar.size(),0);

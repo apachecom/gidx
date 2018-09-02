@@ -211,9 +211,9 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
     compact_patricia_tree::ulong l = m_tree.rank_1(node);
     compact_patricia_tree::ulong r = l + childrens ;
 
-    auto t = std::find(seq.begin()+l-1,seq.begin()+r,str[p]);
-
-    if(t == seq.begin()+r)
+    auto t = std::find(seq.begin()+l-1,seq.begin()+r,(unsigned char)str[p]);
+    auto iii = *t;
+    if(t > seq.begin()+r)
         return true;
     auto ppp = (compact_patricia_tree::ulong)(t-(seq.begin()+l-1)+1);
 
@@ -231,7 +231,6 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
     return path(node,str,p);
 
 }
-
 
 bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node, const m_patricia::compact_patricia_tree::revK &str,
                                              compact_patricia_tree::ulong & p) const{
@@ -249,10 +248,13 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
     compact_patricia_tree::ulong l = m_tree.rank_1(node);
     compact_patricia_tree::ulong r = l + childrens ;
 
-    auto t = std::find(seq.begin()+l-1,seq.begin()+r,str[p]);
+    auto t = std::find(seq.begin()+l-1,seq.begin()+r,(unsigned char)str[p]);
 
-    if(t == seq.begin()+r)
+    char iii = *t;
+
+    if(t > seq.begin()+r)
         return true;
+
     auto ppp = (compact_patricia_tree::ulong)(t-(seq.begin()+l-1)+1);
 
     if(ppp > childrens)
@@ -271,10 +273,6 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
 
 }
 
-
-
-
-
 bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node, const m_patricia::compact_patricia_tree::K & str, compact_patricia_tree::ulong & p, const compact_patricia_tree::ulong &limit) const{
 
     size_t childrens = m_tree.children(node);
@@ -289,8 +287,8 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
     compact_patricia_tree::ulong l = m_tree.rank_1(node);
     compact_patricia_tree::ulong r = l + childrens ;
 
-    auto t = std::find(seq.begin()+l,seq.begin()+r,str[p]);
-
+    auto t = std::find(seq.begin()+l,seq.begin()+r,(unsigned char)str[p]);
+    auto iii = *t;
     if(t == seq.begin()+r)
         return true;
 
