@@ -26,7 +26,7 @@ class SelfGrammarIndex {
 
         virtual ~SelfGrammarIndex() = default;
 
-        virtual void build(std::string& );
+        virtual void build(const std::string& );
 
         virtual void build(const grammar_representation&, const range_search2d& ) = 0;
 

@@ -12,7 +12,7 @@ using namespace std::chrono;
 using timer = std::chrono::high_resolution_clock;
 
 
-void SelfGrammarIndexBS::build(std::string & text) {
+void SelfGrammarIndexBS::build(const std::string & text) {
 
     SelfGrammarIndex::build(text);
 

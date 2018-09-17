@@ -19,7 +19,7 @@ grammar::~grammar() {
 
 }
 
-void grammar::buildRepair(std::string &text) {
+void grammar::buildRepair(const std::string &text) {
 
     unsigned int max_key;
     auto  utext = (u_char *)text.c_str();
@@ -93,7 +93,7 @@ grammar::grammar_iterator grammar::end() {
     return _grammar.end();
 }
 
-void grammar::preprocess(std::string & text) {
+void grammar::preprocess(const std::string & text) {
 
     /*
      * check for every terminal symbol that exist a rule for it

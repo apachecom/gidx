@@ -42,6 +42,7 @@ namespace m_patricia {
         ulong node_match(const revK &) const;
 
         ulong node_locus(const K &, const ulong &) const;
+        ulong node_locus(const revK &, const ulong &) const;
 
         void save(std::fstream &) const;
 
@@ -61,6 +62,7 @@ namespace m_patricia {
         bool path(ulong &, const revK &str, ulong &) const;
 
         bool path(ulong &, const K &str, ulong &, const ulong &limit) const;
+        bool path(ulong &, const revK &str, ulong &, const ulong &limit) const;
 
 
     };

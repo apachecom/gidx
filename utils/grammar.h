@@ -93,7 +93,7 @@ class grammar {
 
         std::map<unsigned int,unsigned char> alp;
 
-        void preprocess(std::string &);
+        void preprocess(const std::string &);
 
         void replace(const rule::r_long& , std::map<rule::r_long ,rule::r_long > &, std::set<rule::r_long> &);
 
@@ -108,7 +108,7 @@ class grammar {
 
         ~grammar();
 
-        void buildRepair(std::string& text);
+        void buildRepair(const std::string&);
 
         grammar_iterator begin();
 

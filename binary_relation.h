@@ -16,7 +16,8 @@ class binary_relation {
     public:
 
         typedef unsigned int bin_long;
-        typedef sdsl::wm_int<sdsl::rrr_vector<>> wavelet_tree;
+        typedef sdsl::wt_int<> wavelet_tree;
+        ///typedef sdsl::wm_int<sdsl::rrr_vector<>> wavelet_tree;
         typedef sdsl::rrr_vector<> bin_bit_vector_xb;
         typedef sdsl::rrr_vector<> bin_bit_vector_xa;
 

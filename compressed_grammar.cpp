@@ -303,7 +303,10 @@ compressed_grammar::g_long compressed_grammar::size_in_bytes() const{
                                sdsl::size_in_bytes(rank_Y) +
                                sdsl::size_in_bytes(L) +
                                sdsl::size_in_bytes(select_L) +
-                               m_tree.size_in_bytes())
+                               m_tree.size_in_bytes() +
+                               left_path.size_in_bytes() +
+                               right_path.size_in_bytes()
+                                )
             ;
 
 }

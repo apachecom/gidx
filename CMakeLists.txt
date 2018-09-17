@@ -74,6 +74,7 @@ set(SOURCE_FILES
         utils/repair/heap.cpp utils/repair/heap.h
         utils/repair/hash.cpp utils/repair/hash.h
         utils/repair/RePair.cpp utils/repair/RePair.h
+        utils/build_hyb_lz77.h
         ################REPAIR FILES#########################
 
         binary_relation.cpp binary_relation.h
@@ -91,6 +92,10 @@ set(SOURCE_FILES
 
         utils/grammar.cpp utils/grammar.h
         tests/collections.cpp
+        bench/repetitive_collections.h
+
+
+
 
 
         )
@@ -113,6 +118,14 @@ cxx_executable_with_flags(building_csa_lcp_rmq "" "${LIBS};benchmark;sdsl;divsuf
 cxx_executable_with_flags(suffixes_grammar "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" tests/suffixes_grammar.cpp ${SOURCE_FILES})
 
 
+
+cxx_executable_with_flags(idx_locate_performance "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64;slp;cds" bench/idx_locate_performance.cpp ${SOURCE_FILES})
+cxx_executable_with_flags(idx_build "" "${LIBS};benchmark;divsufsort;divsufsort64;cds;slp;hsi;rmqrmmBP;sdsl" bench/idx_build.cpp ${SOURCE_FILES})
+
+
 target_link_libraries(improved_grammar_index sdsl)
+target_link_libraries(improved_grammar_index cds)
 target_link_libraries(improved_grammar_index divsufsort)
 target_link_libraries(improved_grammar_index divsufsort64)
+target_link_libraries(improved_grammar_index rmqrmmBP)
+target_link_libraries(improved_grammar_index hsi)

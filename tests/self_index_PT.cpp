@@ -18,7 +18,8 @@ static void sipt_build(benchmark::State& state)
     {
         uint folder = state.range(0);
         uint coll   = state.range(1);
-        std::string collection = "../" + dirFolder[folder]+dircollection[coll];
+        std::string collection = "../tests/collections/repetitive/reals/einstein.de.txt";
+        //std::string collection = "../" + dirFolder[folder]+dircollection[coll];
         std::fstream f(collection, std::ios::in| std::ios::binary);
         std::string data;
         std::cout << "collection: "<< collection << std::endl;
@@ -43,12 +44,19 @@ static void sipt_build(benchmark::State& state)
 
         SelfGrammarIndexPT self_index;
 
-        ////std::string ds  = "abracadabra";
+        //std::string ds  = "abracadabra";
         self_index.build(data);
         self_index.save(f_idx);
         f_idx.close();
-
         std::cout<<self_index.size_in_bytes()<<std::endl;
+
+        std::fstream fin_idx("pt_index_" + dircollection[coll], std::ios::in | std::ios::binary);
+
+        SelfGrammarIndexPT self_index2;
+        self_index2.load(fin_idx);
+
+        std::cout<<self_index2.size_in_bytes()<<std::endl;
+
     }
 }
 
@@ -131,12 +139,17 @@ static void sipt_extract_subtrings(benchmark::State& state)
 
 static void sipt_locate(benchmark::State& state)
 {
+
+    size_t points = state.range(0);
+    for (auto _ : state)
+    {
+
     uint folder = state.range(0);
     uint coll   = state.range(1);
     ///std::string collection = "../" + dirFolder[folder]+dircollection[coll];
     std::string collection = "../tests/collections/repetitive/reals/einstein.de.txt";//"../" + dirFolder[folder]+dircollection[coll];
     ///std::string collection = "prob_pattern_bin";
-    ///std::string collection = "prob_pattern_pt";
+    //std::string collection = "prob_pattern_pt";
 
     std::fstream f(collection, std::ios::in| std::ios::binary);
     std::string data;
@@ -151,7 +164,7 @@ static void sipt_locate(benchmark::State& state)
 
     }
     for (int i = 0; i < data.size(); ++i) {
-        if(data[i] == '$' || data[i] == '#')
+        if(data[i] == 0 || data[i] == 1)
             data[i] = 'Z';
     }
     std::cout << "size of the string: " << data.length() << std::endl;
@@ -159,11 +172,11 @@ static void sipt_locate(benchmark::State& state)
     /*std::fstream f_idx("pt_index_" + dircollection[coll], std::ios::in | std::ios::binary);*/
 
     SelfGrammarIndexPT self_index;
-    ///data="abracadabra";
-    ///data="panamabanana";
-    ///data="andabamananaenlamananalabanana";
-    ////data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra";
-    ////data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra" + data;
+    //data="abracadabra";
+    //data="panamabanana";
+    //data="andabamananaenlamananalabanana";
+    //data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra";
+    //data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra" + data;
     self_index.build(data);
     /*self_index.save(f_idx);*/
 
@@ -216,11 +229,11 @@ static void sipt_locate(benchmark::State& state)
     }
 */
 
-    uint R = 100;
+    uint R = 10000;
     std::srand(std::time(nullptr));
     uint t = 0;
     double total_time = 0;
-    ///std::fstream fpp("prob_pattern_pt",std::ios::out| std::ios::binary);
+    std::fstream fpp("prob_pattern_pt2",std::ios::in);
 
 
     while (--R) {
@@ -248,11 +261,13 @@ static void sipt_locate(benchmark::State& state)
         if(patt.empty())continue;
 
 
-        ///patt = "a";
+        ///patt = "    b";
+        uint noc = 0;
         auto start = timer::now();
         size_t pos = data.find(patt, 0);
         while(pos != string::npos)
         {
+            noc++;
             _X[pos] = true;
             pos = data.find(patt,pos+1);
         }
@@ -263,18 +278,30 @@ static void sipt_locate(benchmark::State& state)
         auto stop_ = timer::now();
 
         unsigned long tttt = duration_cast<microseconds>(stop_ - start_).count();
-        EXPECT_EQ(_X,_occ);
-        /*if(_occ != _X )
+        ASSERT_EQ(_X,_occ);
+        if(_occ != _X )
+        {
             self_index.locate(patt, _occ);
-        */ //   fpp << patt;
-        cout << "query[" << ++t << "] my\t"<<patt<<" \t\t occurences_time = " <<duration_cast<microseconds>(stop_ - start_).count()<<std::endl;
-        cout << "query[" << t << "] bforce\t"<<patt<<" \t\t occurences_time = " <<duration_cast<microseconds>(stop - start).count()<<std::endl;
+            std::cout<<patt<<std::endl;
+            fpp << patt;
+            return;
+            return;
+        }
 
-        total_time += tttt;
+        //
+        ////self_index.locate(patt, _occ);
+
+        cout << "query[" << ++t << "] my    \t"<<patt<<" \t\t occurences_time = " <<duration_cast<microseconds>(stop_ - start_).count()<<std::endl;
+        cout << "query[" << t <<   "] bforce\t"<<patt<<" \t\t occurences_time = " <<duration_cast<microseconds>(stop - start).count()<<std::endl;
+        cout << "occurrences "<<noc<<std::endl;
+        total_time += tttt/100;
 
     }
 
-    std::cout<<"Total time "<<total_time<<std::endl;
+    std::cout<<"mean time "<<total_time<<std::endl;
+    /*std::fstream fi("idx_einstein",std::ios::out|std::ios::binary);
+    self_index.save(fi);*/
+    }
 }
 
 
@@ -366,8 +393,8 @@ static void partial_build_locate(benchmark::State& state)
 
         std::cout<<"Building Sampled Patricia Trees for suffixes."<<std::endl;
 
-        //unsigned long sampling = (unsigned long)(log2(data.size()) * log2(log2(G.n_rules()))/log2(G.n_rules()));
-        unsigned long sampling = 1;
+        unsigned long sampling = (unsigned long)(log2(data.size()) * log2(log2(G.n_rules()))/log2(G.n_rules()));
+///        unsigned long sampling = 1;
         sampling = ( sampling != 0 )?sampling:1;
         std::cout<<"\t sampled: "<<sampling<<std::endl;
         std::cout<<"\t numero de sufijos count: "<<n_sufx<<std::endl;
@@ -667,7 +694,8 @@ static void partial_extract_substring(benchmark::State& state)
 ////BENCHMARK(sipt_extract_subtrings)->Args( {dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
 ///BENCHMARK(partial_build_locate)->Args({dataDir::dir_sources, dataCollection::sources50})->Unit(benchmark::kMillisecond);
 ///BENCHMARK(partial_extract_substring)->Args( {dataDir::dir_sources, dataCollection::sources50})->Unit(benchmark::kMillisecond);
-BENCHMARK(sipt_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
+///BENCHMARK(sipt_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
+BENCHMARK(sipt_build)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
 /*
 BENCHMARK(sipt_build)->Args({dataDir::dir_DNA, dataCollection::DNA100})->Unit(benchmark::kMillisecond);
 BENCHMARK(sipt_build)->Args({dataDir::dir_DNA, dataCollection::DNA200})->Unit(benchmark::kMillisecond);

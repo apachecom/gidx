@@ -186,11 +186,20 @@ compact_patricia_tree::ulong m_patricia::compact_patricia_tree::node_locus(const
     path(node,str,p,limit);
     return node;
 }
+compact_patricia_tree::ulong m_patricia::compact_patricia_tree::node_locus(const m_patricia::compact_patricia_tree::revK & str, const compact_patricia_tree::ulong & limit)const {
+    compact_patricia_tree::ulong node = m_tree.root();
+    compact_patricia_tree::ulong p = 0;
+    path(node,str,p,limit);
+    return node;
+}
 
 void m_patricia::compact_patricia_tree::save(std::fstream & f) const {
-
+    std::cout<<"saving cpatricia_tree"<<std::endl;
+    std::cout<<"\t sdsl::serialize(seq,f);"<<std::endl;
     sdsl::serialize(seq,f);
+    std::cout<<"\t sdsl::serialize(jumps,f);"<<std::endl;
     sdsl::serialize(jumps,f);
+    std::cout<<"\t m_tree.save(f);"<<std::endl;
     m_tree.save(f);
 
 }
@@ -205,7 +214,7 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
         return true ;
     }
 
-    if(p >= str.size())
+    if(p > str.size())
         return true;
 
     compact_patricia_tree::ulong l = m_tree.rank_1(node);
@@ -242,7 +251,7 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
         return true ;
     }
 
-    if(p >= str.size())
+    if(p > str.size())
         return true;
 
     compact_patricia_tree::ulong l = m_tree.rank_1(node);
@@ -277,34 +286,76 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
 
     size_t childrens = m_tree.children(node);
 
-    if (childrens == 0){
+    if (childrens == 0)
         return true ;
-    }
 
-    if(p >= str.size())
+    if( p >= limit )
+        return true;
+
+    if(p > str.size())
         return true;
 
     compact_patricia_tree::ulong l = m_tree.rank_1(node);
     compact_patricia_tree::ulong r = l + childrens ;
 
-    auto t = std::find(seq.begin()+l,seq.begin()+r,(unsigned char)str[p]);
-    auto iii = *t;
-    if(t == seq.begin()+r)
+    auto t = std::find(seq.begin()+l-1,seq.begin()+r,(unsigned char)str[p]);
+    char iii = *t;
+    if(t > seq.begin()+r)
         return true;
 
     auto ppp = (compact_patricia_tree::ulong)(t-(seq.begin()+l-1)+1);
+
+    if(ppp > childrens)
+        return true;
+
     size_t child = m_tree.child(node, ppp );
 
     size_t ii = m_tree.pre_order(child);
 
     p += jumps[ii];
 
-    if( p >= limit )
-        return true;
 
     node = child;
 
-    return path(node,str,p);
+    return path(node,str,p,limit);
+}
+
+bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node, const m_patricia::compact_patricia_tree::revK & str, compact_patricia_tree::ulong & p, const compact_patricia_tree::ulong &limit) const{
+
+    size_t childrens = m_tree.children(node);
+
+    if (childrens == 0)
+        return true ;
+
+    if( p >= limit )
+        return true;
+
+    if(p > str.size())
+        return true;
+
+    compact_patricia_tree::ulong l = m_tree.rank_1(node);
+    compact_patricia_tree::ulong r = l + childrens ;
+
+    auto t = std::find(seq.begin()+l-1,seq.begin()+r,(unsigned char)str[p]);
+    char iii = *t;
+    if(t > seq.begin()+r)
+        return true;
+
+    auto ppp = (compact_patricia_tree::ulong)(t-(seq.begin()+l-1)+1);
+
+    if(ppp > childrens)
+        return true;
+
+    size_t child = m_tree.child(node, ppp );
+
+    size_t ii = m_tree.pre_order(child);
+
+    p += jumps[ii];
+
+
+    node = child;
+
+    return path(node,str,p,limit);
 }
 
 void m_patricia::compact_patricia_tree::load(std::fstream &f) {

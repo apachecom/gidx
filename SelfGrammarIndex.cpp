@@ -11,7 +11,7 @@ using timer = std::chrono::high_resolution_clock;
 
 
 
-void SelfGrammarIndex::build(std::string& text)
+void SelfGrammarIndex::build(const std::string& text)
 {
 
 
@@ -1048,7 +1048,7 @@ SelfGrammarIndex::bp_cmp_suffix(const compressed_grammar::g_long & X_i, std::str
         if(a_th < (unsigned char)(*itera)) return 1;
         if(a_th > (unsigned char)(*itera)) return  -1;
         --itera;
-        if(itera == end-1) return 0;
+            if(itera == end-1) return 0;
     }
 
 

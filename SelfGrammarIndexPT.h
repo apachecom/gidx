@@ -16,21 +16,29 @@ class SelfGrammarIndexPT: protected SelfGrammarIndex {
 
     protected:
 
-        unsigned long sampling;
+        unsigned int sampling;
 
         m_patricia::compact_patricia_tree sfx_p_tree;
         m_patricia::compact_patricia_tree rules_p_tree;
 
 
-        void sampling_range_suff(size_t& i, size_t& j,std::vector<size_t >&, std::string&)const;
+        void sampling_range_suff(size_t& i, size_t& j, std::string::iterator& , std::string::iterator& )const;
 
-        void sampling_range_rules(size_t &i, size_t &j,std::vector<size_t >& S, std::string& str) const;
+        void sampling_range_rules(size_t &i, size_t &j, std::string::iterator& , std::string::iterator& )const;
+
+
+        size_t _st(const size_t & i)const {
+            return  (i-1)*sampling + 1;
+        } //sampling transform;
+
+
+
 
     public:
         SelfGrammarIndexPT() = default;
         ~SelfGrammarIndexPT() = default;
 
-        virtual void build(std::string& ) override ;
+        virtual void build(const std::string& ) override ;
 
         unsigned long size_in_bytes() const override ;
         void build(const grammar_representation&, const range_search2d& ) override ;

@@ -285,8 +285,11 @@ namespace m_patricia {
 
                 std::cout<<"<"<<n->id<<">\n";
                 for (auto &&item :n->childs) {
-                    std::cout<<"\t< "<<item.first<<",<"<<item.second.first<<", "<<item.second.second->id<<"> >\n";
+                    std::cout<<"\t< "<<item.first<<"("<<uint(item.first)<<"),<"<<item.second.first<<", "<<item.second.second->id<<"> >\n";
                 }
+                if(n->childs.size() == 0)
+                    std::cout<<"("<<n->ids.size()<<")\n";
+
                 return true;
 
             }, '_', 0);
@@ -366,7 +369,7 @@ namespace m_patricia {
 
 
     class string_pairs:std::pair<size_t ,size_t >{
-        std::string* text;
+        const std::string* text;
         uint id;
         uint c;
 
@@ -377,7 +380,7 @@ namespace m_patricia {
         }
         ~string_pairs() = default;
 
-        string_pairs(std::string& _text, uint _id):text(&_text),id(_id){
+        string_pairs(const std::string& _text, uint _id):text(&_text),id(_id){
             first = 0;
             second = 0;
         }
@@ -455,7 +458,7 @@ namespace m_patricia {
 
 
     class rev_string_pairs:std::pair<size_t ,size_t >{
-        std::string* text;
+        const std::string* text;
         uint id;
         uint c;
 
@@ -466,7 +469,7 @@ namespace m_patricia {
         }
         ~rev_string_pairs() = default;
 
-        rev_string_pairs(std::string& _text, uint _id):text(&_text),id(_id){
+        rev_string_pairs(const std::string& _text, uint _id):text(&_text),id(_id){
             first = 0;
             second = 0;
         }

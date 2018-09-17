@@ -17,7 +17,7 @@ public:
     ~SelfGrammarIndexBS() override = default;
 
 
-    void build(std::string& ) override;
+    void build(const std::string& ) override;
 
     void build(const grammar_representation&, const range_search2d& );
 

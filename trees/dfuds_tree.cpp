@@ -60,7 +60,11 @@ dfuds_tree::dfuds_long dfuds_tree::children(const dfuds_tree::dfuds_long &v) con
 }
 
 dfuds_tree::dfuds_long dfuds_tree::leafnum(const dfuds_tree::dfuds_long &v)const {
+
+
     return leafrank( bps.fwd_excess(v-1,-1) +1)-leafrank(v);
+
+
 }
 
 dfuds_tree::dfuds_long dfuds_tree::leafrank(const dfuds_tree::dfuds_long &v) const {
