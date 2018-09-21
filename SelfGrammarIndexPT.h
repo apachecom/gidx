@@ -16,34 +16,36 @@ class SelfGrammarIndexPT: protected SelfGrammarIndex {
 
     protected:
 
-        unsigned int sampling;
+///        unsigned int sampling;
 
         m_patricia::compact_patricia_tree sfx_p_tree;
         m_patricia::compact_patricia_tree rules_p_tree;
 
 
-        void sampling_range_suff(size_t& i, size_t& j, std::string::iterator& , std::string::iterator& )const;
+        //void sampling_range_suff(size_t& i, size_t& j, std::string::iterator& , std::string::iterator& )const;
 
-        void sampling_range_rules(size_t &i, size_t &j, std::string::iterator& , std::string::iterator& )const;
+        //void sampling_range_rules(size_t &i, size_t &j, std::string::iterator& , std::string::iterator& )const;
 
 
-        size_t _st(const size_t & i)const {
+        /*size_t _st(const size_t & i)const {
             return  (i-1)*sampling + 1;
-        } //sampling transform;
+        } //sampling transform;*/
 
 
 
 
     public:
         SelfGrammarIndexPT() = default;
-        ~SelfGrammarIndexPT() = default;
+        virtual ~SelfGrammarIndexPT();
 
-        virtual void build(const std::string& ) override ;
+        void build(const std::string& ) override ;
 
-        unsigned long size_in_bytes() const override ;
-        void build(const grammar_representation&, const range_search2d& ) override ;
+
+
         void build(const grammar_representation&, const range_search2d&, const m_patricia::compact_patricia_tree&,const m_patricia::compact_patricia_tree& ) ;
 
+        unsigned long size_in_bytes() const override ;
+        void locate2( std::string & , sdsl::bit_vector & );
         void locate( std::string& , sdsl::bit_vector &) override ;
 
         void display(const std::size_t& , const std::size_t&, std::string & ) override ;

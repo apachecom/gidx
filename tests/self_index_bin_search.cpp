@@ -478,9 +478,9 @@ static void sibs_locate(benchmark::State& state)
 
         ///data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra";
         ///data = "panamabanana";
-        ///self_index.build(data);
+        self_index.build(data);
         std::fstream sf("einstein-bin.idx2", std::ios::in| std::ios::binary);
-        self_index.load(sf);
+        self_index.save(sf);
         sf.close();
 /*
        {
@@ -531,7 +531,7 @@ static void sibs_locate(benchmark::State& state)
         }
 */
 
-/*
+
 
 
         uint R = 100;
@@ -539,7 +539,8 @@ static void sibs_locate(benchmark::State& state)
         uint t = 0;
         double mean = 0, total_time = 0;
 
-        while (R) {
+        while (--R)
+        {
 
 
             sdsl::bit_vector _occ(data.size(),0);
@@ -563,11 +564,7 @@ static void sibs_locate(benchmark::State& state)
 
             if(patt.empty())continue;
 
-            ptf << patt << '\n';
-
-            --R;
-
-           /* auto start = timer::now();
+            auto start = timer::now();
             size_t pos = data.find(patt, 0);
             uint tooc = 0;
             while(pos != string::npos)
@@ -590,12 +587,12 @@ static void sibs_locate(benchmark::State& state)
             cout << "query[" << ++t << "] cadena: " <<patt<<"\t my time\t"<< duration_cast<microseconds>(stop_ - start_).count()<<"\t num de occ:"<<_r.rank(_occ.size())<<std::endl;
             cout << "query[" << t << "] cadena: " <<patt<<"\t BF time\t"<< duration_cast<microseconds>(stop - start).count()<<"\t num de occ:"<<tooc<<std::endl;
             mean += duration_cast<microseconds>(stop_ - start_).count()*1.0/100;
-            total_time += duration_cast<microseconds>(stop_ - start_).count();*/
-    /*    }
+            total_time += duration_cast<microseconds>(stop_ - start_).count();
+        }
 
         cout << "query[ mean ] time: " <<mean<<std::endl;
         cout << "total time: " <<total_time<<std::endl;
-    */
+
 
     }
 }

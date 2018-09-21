@@ -22,13 +22,13 @@ class SelfGrammarIndex {
         range_search2d grid;
 
     public:
-        SelfGrammarIndex() = default;
+        SelfGrammarIndex(){};
 
-        virtual ~SelfGrammarIndex() = default;
+        virtual ~SelfGrammarIndex(){};
 
         virtual void build(const std::string& );
 
-        virtual void build(const grammar_representation&, const range_search2d& ) = 0;
+        //virtual void build(const grammar_representation&, const range_search2d& ) = 0;
 
         virtual void locate( std::string& , sdsl::bit_vector &) = 0;
 
@@ -43,8 +43,8 @@ class SelfGrammarIndex {
 
         virtual void locate_ch( const char& , sdsl::bit_vector &);
 
-
         bool bp_expand_prefix(const grammar_representation::g_long &, std::string&,const size_t &,size_t & pos) const;
+
         bool bp_expand_suffix(const grammar_representation::g_long &, std::string&,const size_t &,size_t & pos) const;
 
         bool expand_prefix(const grammar_representation::g_long &, std::string&,const size_t &,size_t & pos) const;

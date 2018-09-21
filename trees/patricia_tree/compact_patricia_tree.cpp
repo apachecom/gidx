@@ -214,7 +214,7 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
         return true ;
     }
 
-    if(p > str.size())
+    if(p >= str.size())
         return true;
 
     compact_patricia_tree::ulong l = m_tree.rank_1(node);
@@ -251,7 +251,7 @@ bool m_patricia::compact_patricia_tree::path(compact_patricia_tree::ulong & node
         return true ;
     }
 
-    if(p > str.size())
+    if(p >= str.size())
         return true;
 
     compact_patricia_tree::ulong l = m_tree.rank_1(node);
@@ -377,7 +377,7 @@ compact_patricia_tree::ulong m_patricia::compact_patricia_tree::size_in_bytes() 
 }
 
 void m_patricia::compact_patricia_tree::print_size_in_bytes() const {
-
+    std::cout<<"PATRICIA TREE"<<std::endl;
     std::cout<<"\t tree size "<<m_tree.size_in_bytes()<<std::endl;
     std::cout<<"\t sequence size "<<sdsl::size_in_bytes(seq)<<std::endl;
     std::cout<<"\t tree size "<<sdsl::size_in_bytes(jumps)<<std::endl;

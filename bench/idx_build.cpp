@@ -12,11 +12,13 @@
 
 #include <slp/RePairSLPIndex.h>
 #include "../SelfGrammarIndexPT.h"
+#include "../SelfGrammarIndexBS.h"
 #include <ri/r_index.hpp>
 #include "../utils/build_hyb_lz77.h"
 #include <hyb/HybridSelfIndex.h>
 
 #include "repetitive_collections.h"
+#include "../SelfGrammarIndexPTS.h"
 
 
 using namespace cds_static;
@@ -166,6 +168,9 @@ auto slpbuild = [](benchmark::State &st, const string &file_collection){
 
 };
 
+
+
+
 auto g_imp_build = [](benchmark::State &st, const string &file_collection){
 
     std::fstream f(file_collection, std::ios::in| std::ios::binary);
@@ -193,6 +198,61 @@ auto g_imp_build = [](benchmark::State &st, const string &file_collection){
     st.counters["Size"] = g_index->size_in_bytes();
 };
 
+auto g_imp_pts_build = [](benchmark::State &st, const string &file_collection, const uint8_t &sampling){
+
+    std::fstream f(file_collection, std::ios::in| std::ios::binary);
+    std::string data;
+    if(!f.is_open()){
+        std::cout<<"Error the file could not opened!!\n";
+        return 0;
+    }
+    std::string buff;
+    while (!f.eof() && std::getline(f, buff)) {
+        data += buff;
+    }
+    for (int i = 0; i < data.size(); ++i) {
+        if(data[i] == 0 || data[i] == 1)
+            data[i] = 'Z';
+    }
+    SelfGrammarIndexPTS* g_index = new SelfGrammarIndexPTS(sampling);
+    for (auto _ : st)
+    {
+        g_index->build(data);
+    }
+
+    fstream f_gidx(std::to_string(collections_code[file_collection])+".gpts"+std::to_string(sampling)+"idx", std::ios::out | std::ios::binary);
+    g_index->save(f_gidx);
+    st.counters["Size"] = g_index->size_in_bytes();
+};
+
+
+
+auto g_imp_bs_build = [](benchmark::State &st, const string &file_collection){
+
+    std::fstream f(file_collection, std::ios::in| std::ios::binary);
+    std::string data;
+    if(!f.is_open()){
+        std::cout<<"Error the file could not opened!!\n";
+        return 0;
+    }
+    std::string buff;
+    while (!f.eof() && std::getline(f, buff)) {
+        data += buff;
+    }
+    for (int i = 0; i < data.size(); ++i) {
+        if(data[i] == 0 || data[i] == 1)
+            data[i] = 'Z';
+    }
+    SelfGrammarIndexBS* g_index = new SelfGrammarIndexBS();
+    for (auto _ : st)
+    {
+        g_index->build(data);
+    }
+
+    fstream f_gidx(std::to_string(collections_code[file_collection])+".gbsidx", std::ios::out | std::ios::binary);
+    g_index->save(f_gidx);
+    st.counters["Size"] = g_index->size_in_bytes();
+};
 
 
 int main (int argc, char *argv[] ){
@@ -208,18 +268,25 @@ int main (int argc, char *argv[] ){
     std::string collection(argv[1]);
 
     // New RePairSLPIndex
-    cout << " >> Building the SLP Index:" << endl;
-    //benchmark::RegisterBenchmark("SLP-Index", slpbuild,collection);
+    //cout << " >> Building the SLP Index:" << endl;
+    benchmark::RegisterBenchmark("SLP-Index", slpbuild,collection);
     // New Grammar-Improved-Index
-    cout << " >> Building the Grammar-Improved-Index:" << endl;
-    //benchmark::RegisterBenchmark("Grammar-Improved-Index", g_imp_build, collection);
-    /* cout << " >> Building the LZ77-Index:" << endl;
+    //cout << " >> Building the Grammar-Improved-Index Binary Search:" << endl;
+    benchmark::RegisterBenchmark("Grammar-Improved-Index Binary Search", g_imp_bs_build, collection);
+    //cout << " >> Building the Grammar-Improved-Index:" << endl;
+    benchmark::RegisterBenchmark("Grammar-Improved-PT-Index", g_imp_build, collection);
+
+    benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<8>",  g_imp_pts_build, collection, 8);
+    benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<16>", g_imp_pts_build, collection, 16);
+    benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<32>", g_imp_pts_build, collection, 32);
+    benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<64>", g_imp_pts_build, collection, 64);
+    /*cout << " >> Building the LZ77-Index:" << endl;
     benchmark::RegisterBenchmark("LZ77-Index", lz77build, collection);
     cout << " >> Building the LZEnd-Index:" << endl;
     benchmark::RegisterBenchmark("LZEnd-Index", lzEndbuild, collection);*/
-    /*cout << " >> Building R-Index:" << endl;
-    benchmark::RegisterBenchmark("R-Index", ribuild, collection);*/
-    cout << " >> Building Hyb-Index:" << endl;
+    //cout << " >> Building R-Index:" << endl;
+    benchmark::RegisterBenchmark("R-Index", ribuild, collection);
+    //cout << " >> Building Hyb-Index:" << endl;
     benchmark::RegisterBenchmark("Hyb-Index", hybbuild, collection);
 
 

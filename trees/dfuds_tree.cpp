@@ -28,6 +28,7 @@ short dfuds_tree::root()const {
 }
 
 dfuds_tree::dfuds_long dfuds_tree::subtree(const dfuds_tree::dfuds_long & v)const {
+
     return ((bps.fwd_excess(v - 1, -1) - v) / 2 + 1);
     ////return 0;
 }

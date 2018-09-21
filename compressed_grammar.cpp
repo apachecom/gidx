@@ -277,11 +277,11 @@ void compressed_grammar::build(compressed_grammar::plain_grammar &grammar) {
 
 
     auto _alp = grammar.get_map();
+
     for (auto &&  ii: _alp) {
         alp.push_back(ii.second);
     }
     std::sort(alp.begin(),alp.end());
-
 
 }
 
@@ -371,6 +371,12 @@ void compressed_grammar::save(std::fstream &f) {
     std::cout<<"\tleft_path.save(f);\n";
     right_path.save(f);
     std::cout<<"\tright_path.save(f);\n";
+    size_t n = alp.size();
+    sdsl::serialize(n ,f);
+    for (auto &&  c: alp) {
+        sdsl::serialize(c,f);
+    }
+
 
 }
 
@@ -402,6 +408,14 @@ void compressed_grammar::load(std::fstream & f) {
     m_tree.load(f);
     left_path.load(f);
     right_path.load(f);
+    size_t n;
+    sdsl::load(n,f);
+    alp.resize(n);
+    for (size_t i =0 ; i < n ; ++i) {
+        unsigned char c ;
+        sdsl::load(c,f);
+        alp[i] = c;
+    }
 
 }
 

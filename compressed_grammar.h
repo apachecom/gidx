@@ -20,7 +20,8 @@ class compressed_grammar {
         typedef unsigned int g_long;
         typedef grammar plain_grammar;
         typedef  dfuds::dfuds_tree parser_tree;
-        typedef  sdsl::wt_ap< sdsl::wt_huff<sdsl::bit_vector, sdsl::rank_support_v5<>> ,sdsl::wm_int<> > wavelet_tree;
+        //typedef  sdsl::wt_ap< sdsl::wt_huff<sdsl::bit_vector, sdsl::rank_support_v5<>> ,sdsl::wm_int<> > wavelet_tree;
+        typedef  sdsl::wt_gmr<> wavelet_tree;
         typedef  sdsl::sd_vector<> z_vector;
         typedef  sdsl::sd_vector<> y_vector;
         typedef  sdsl::sd_vector<> l_vector;
@@ -61,11 +62,12 @@ class compressed_grammar {
         /*
          * alphabeth
          * */
+
+
         std::vector<unsigned char> alp;
 
-
-
     public:
+
 
         compressed_grammar();
 

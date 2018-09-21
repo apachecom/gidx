@@ -7,6 +7,7 @@
 #include <fstream>
 #include "collections.cpp"
 #include "../SelfGrammarIndexPT.h"
+#include "../SelfGrammarIndexPTS.h"
 
 using namespace std::chrono;
 using timer = std::chrono::high_resolution_clock;
@@ -137,7 +138,7 @@ static void sipt_extract_subtrings(benchmark::State& state)
 
 }
 
-static void sipt_locate(benchmark::State& state)
+void sipt_locate(benchmark::State& state)
 {
 
     size_t points = state.range(0);
@@ -169,16 +170,30 @@ static void sipt_locate(benchmark::State& state)
     }
     std::cout << "size of the string: " << data.length() << std::endl;
     f.close();
-    /*std::fstream f_idx("pt_index_" + dircollection[coll], std::ios::in | std::ios::binary);*/
+    std::fstream f_idx("pt_index_test", std::ios::out | std::ios::binary);
 
-    SelfGrammarIndexPT self_index;
+
+
+
     //data="abracadabra";
     //data="panamabanana";
     //data="andabamananaenlamananalabanana";
     //data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra";
-    //data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra" + data;
-    self_index.build(data);
-    /*self_index.save(f_idx);*/
+    ///data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra" + data;
+    //self_index.build(data);
+
+    SelfGrammarIndexPTS self_index(8);
+        self_index.build(data);
+   //     self_index.save(f_idx);
+   // f_idx.close();
+
+
+
+        /*SelfGrammarIndexPT self_index;
+    std::fstream ptf("pt_index_test", std::ios::in| std::ios::binary);
+    self_index.load(ptf);
+    ptf.close();*/
+    /**/
 
 
    /* {
@@ -229,7 +244,7 @@ static void sipt_locate(benchmark::State& state)
     }
 */
 
-    uint R = 10000;
+    uint R = 100;
     std::srand(std::time(nullptr));
     uint t = 0;
     double total_time = 0;
@@ -278,13 +293,12 @@ static void sipt_locate(benchmark::State& state)
         auto stop_ = timer::now();
 
         unsigned long tttt = duration_cast<microseconds>(stop_ - start_).count();
-        ASSERT_EQ(_X,_occ);
+        EXPECT_EQ(_X,_occ);
         if(_occ != _X )
         {
             self_index.locate(patt, _occ);
             std::cout<<patt<<std::endl;
             fpp << patt;
-            return;
             return;
         }
 
@@ -694,8 +708,8 @@ static void partial_extract_substring(benchmark::State& state)
 ////BENCHMARK(sipt_extract_subtrings)->Args( {dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
 ///BENCHMARK(partial_build_locate)->Args({dataDir::dir_sources, dataCollection::sources50})->Unit(benchmark::kMillisecond);
 ///BENCHMARK(partial_extract_substring)->Args( {dataDir::dir_sources, dataCollection::sources50})->Unit(benchmark::kMillisecond);
-///BENCHMARK(sipt_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
-BENCHMARK(sipt_build)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
+BENCHMARK(sipt_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
+//BENCHMARK(sipt_build)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
 /*
 BENCHMARK(sipt_build)->Args({dataDir::dir_DNA, dataCollection::DNA100})->Unit(benchmark::kMillisecond);
 BENCHMARK(sipt_build)->Args({dataDir::dir_DNA, dataCollection::DNA200})->Unit(benchmark::kMillisecond);

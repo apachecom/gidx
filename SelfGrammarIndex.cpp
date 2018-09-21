@@ -31,6 +31,7 @@ void SelfGrammarIndex::load(std::fstream &fin) {
     _g.load(fin);
     grid.load(fin);
 
+
 }
 
 bool SelfGrammarIndex::expand_prefix(const grammar_representation::g_long & X_i, std::string & s, const size_t & l,size_t & pos )const
@@ -273,95 +274,14 @@ void SelfGrammarIndex::find_second_occ(long int & offset, unsigned int & node, s
         size_t n_s_occ = _g.n_occ(Xi);
         for (size_t i = 1; i <= n_s_occ; ++i)
         {
-            /*size_t node_occ_pre = _g.select_occ(Xi,i);
-            size_t current = Tg[node_occ_pre];
-            auto current_parent = Tg.parent(current);
-            long int p_offset = offset + _g.offsetText(current) - _g.offsetText(current_parent) ;
-            */size_t pre_parent = _g.select_occ(Xi,i);
+            size_t pre_parent = _g.select_occ(Xi,i);
             S.emplace_back(pre_parent,offset);
         }
     }
 
-/*
-    {
-        uint pre_node = Tg.pre_order(node);
-        uint Xi = _g[pre_node];
-        uint n_s_occ = _g.n_occ(Xi);
-        if(pre_node == 1)
-        {
-            occ[offset] = true;
-            return;
-        }
-        for (uint  i = 1; i <= n_s_occ; ++i)
-        {
-            size_t node_occ_pre = _g.select_occ(Xi,i);
-            size_t current = Tg[node_occ_pre];
-            auto current_parent = Tg.parent(current);
-            long int p_offset = offset + _g.offsetText(current) - _g.offsetText(current_parent) ;
-            S.emplace_back(node_occ_pre,p_offset);
-        }
-
-
-
-        /*size_t current_parent = Tg.parent(node);
-        long int p_offset = offset + _g.offsetText(node) - _g.offsetText(current_parent);
-
-        if(pre_node == 1)
-        {
-            occ[p_offset] = true;
-            return;
-        }
-        else
-        {
-            S.emplace_back(pre_node,p_offset);
-        }
-
-        uint i = 1,node_occ_pre = 0;
-
-        do{
-
-            node_occ_pre = _g.select_occ(Xi,++i);
-            size_t current = Tg[node_occ_pre];
-            current_parent = Tg.parent(current);
-            long int p_offset = offset + _g.offsetText(current) - _g.offsetText(current_parent) ;
-
-            if(node_occ_pre == 1)
-            {
-                occ[p_offset] = true;
-            }
-            else
-            {
-                S.emplace_back(node_occ_pre,p_offset);
-            }
-
-        }while(!_g.isLastOcc(node_occ_pre));
-*/
-/*
-        for (uint  i = 1; i < n_s_occ; ++i)
-        {
-            size_t node_occ_pre = _g.select_occ(Xi,i+1);
-            size_t current = Tg[node_occ_pre];
-            current_parent = Tg.parent(current);
-            long int p_offset = offset + _g.offsetText(current) - _g.offsetText(current_parent) ;
-
-            if(node_occ_pre == 1)
-            {
-                occ[p_offset] = true;
-            }
-            else
-            {
-                S.emplace_back(node_occ_pre,p_offset);
-            }
-
-        }
-
-*//*
-    }
-*/
     ////uint steps = 0;
     while(!S.empty())
     {
-
         ///std::pair<size_t , long int > front_pair = S.front();
 
         if(S.front().first == 1)
@@ -381,48 +301,9 @@ void SelfGrammarIndex::find_second_occ(long int & offset, unsigned int & node, s
                 size_t pre_parent = _g.select_occ(Xi,i);
                 S.emplace_back(pre_parent,p_offset);
             }
-
-
-
-           /* uint i = 1,node_occ_pre = 0;
-
-            do{
-                node_occ_pre = _g.select_occ(Xi,++i);
-                current = Tg[node_occ_pre];
-                size_t current_parent = Tg.parent(current);
-                long int p_offset = S.front().second + _g.offsetText(current) - _g.offsetText(current_parent);
-
-                if(node_occ_pre == 1)
-                {
-                    occ[p_offset] = true;
-                }
-                else
-                {
-                    S.emplace_back(node_occ_pre,p_offset);
-                }
-
-            }while(!_g.isLastOcc(node_occ_pre));*/
         }
-/*
-        for (size_t i = 1; i < n_s_occ; ++i)
-        {
-            size_t node_occ_pre = _g.select_occ(Xi,i+1);
-            current = Tg[node_occ_pre];
-            size_t current_parent = Tg.parent(current);
-            long int p_offset = S.front().second + _g.offsetText(current) - _g.offsetText(current_parent);
 
-            if(node_occ_pre == 1)
-            {
-                occ[p_offset] = true;
-            }
-            else
-            {
-                S.emplace_back(node_occ_pre,p_offset);
-            }
-        }
-*/
         S.pop_front();
-
     }
 
 

@@ -125,6 +125,21 @@ void binary_relation::build( std::vector<point>::iterator begin,std::vector<poin
 
 }
 
+
+void binary_relation::range2(binary_relation::bin_long & a1, binary_relation::bin_long & a2, binary_relation::bin_long & b1, binary_relation::bin_long & b2, std::vector<std::pair<size_t, size_t>> &Rel) {
+
+    size_t p1,p2;
+    p1 = map(a1);
+    p2 = map(a2+1)-1;
+    if(p1 > p2) return;
+    auto res = SB.range_search_2d2(p1,p2,b1,b2);
+
+    for ( auto point : res.second ){
+        Rel.emplace_back(std::make_pair(point.first,point.second));
+    }
+}
+
+
 void binary_relation::range(binary_relation::bin_long & a1, binary_relation::bin_long & a2, binary_relation::bin_long & b1, binary_relation::bin_long & b2, std::vector<std::pair<size_t, size_t>> &Rel) {
 
     size_t p1,p2;

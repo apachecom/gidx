@@ -65,6 +65,7 @@ set(SOURCE_FILES
         SelfGrammarIndex.cpp SelfGrammarIndex.h
         SelfGrammarIndexBS.cpp SelfGrammarIndexBS.h
         SelfGrammarIndexPT.cpp SelfGrammarIndexPT.h
+        SelfGrammarIndexPTS.cpp SelfGrammarIndexPTS.h
 
         ################REPAIR FILES#########################
         utils/repair/arrayG.cpp utils/repair/arrayG.h
@@ -114,14 +115,17 @@ cxx_executable_with_flags(compact_trie_test "" "${LIBS};benchmark;sdsl;divsufsor
 cxx_executable_with_flags(self_index_bin_search "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" tests/self_index_bin_search.cpp ${SOURCE_FILES})
 cxx_executable_with_flags(self_index_pt "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" tests/self_index_PT.cpp ${SOURCE_FILES})
 cxx_executable_with_flags(wavelet_tree_ap "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" tests/wavelet_tree_ap.cpp ${SOURCE_FILES})
+cxx_executable_with_flags(wavelet_tree_range "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" tests/wt_range_search.cpp ${SOURCE_FILES})
 cxx_executable_with_flags(building_csa_lcp_rmq "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" tests/building_csa_lcp_rmq.cpp ${SOURCE_FILES})
 cxx_executable_with_flags(suffixes_grammar "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" tests/suffixes_grammar.cpp ${SOURCE_FILES})
 
 
 
-cxx_executable_with_flags(idx_locate_performance "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64;slp;cds" bench/idx_locate_performance.cpp ${SOURCE_FILES})
-cxx_executable_with_flags(idx_build "" "${LIBS};benchmark;divsufsort;divsufsort64;cds;slp;hsi;rmqrmmBP;sdsl" bench/idx_build.cpp ${SOURCE_FILES})
 
+
+
+cxx_executable_with_flags(idx_locate_performance "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/idx_locate_performance.cpp ${SOURCE_FILES})
+cxx_executable_with_flags(idx_build "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/idx_build.cpp ${SOURCE_FILES})
 
 target_link_libraries(improved_grammar_index sdsl)
 target_link_libraries(improved_grammar_index cds)

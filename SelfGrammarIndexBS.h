@@ -22,6 +22,7 @@ public:
     void build(const grammar_representation&, const range_search2d& );
 
     void locate( std::string& , sdsl::bit_vector &) override;
+    void locate2( std::string& , sdsl::bit_vector &) ;
     void display(const std::size_t& , const std::size_t&, std::string & ) override ;
 
 
@@ -33,6 +34,7 @@ public:
     {
         SelfGrammarIndex::load(f);
     }
+    unsigned long size_in_bytes() const override ;
 
 
 protected:

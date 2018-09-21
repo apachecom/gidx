@@ -45,6 +45,7 @@ class binary_relation {
         void build(std::vector<point>::iterator , std::vector<point>::iterator, const bin_long &, const bin_long&);
 
         void range(binary_relation::bin_long& , binary_relation::bin_long& , binary_relation::bin_long& , binary_relation::bin_long& , std::vector< std::pair<size_t,size_t>>& );
+        void range2(binary_relation::bin_long& , binary_relation::bin_long& , binary_relation::bin_long& , binary_relation::bin_long& , std::vector< std::pair<size_t,size_t>>& );
         bin_long labels(const size_t& , const size_t &) const;
         bin_long first_label_col(const size_t& ) const;
 
