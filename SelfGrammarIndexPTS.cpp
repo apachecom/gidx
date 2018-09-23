@@ -248,13 +248,13 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
     {
         // CREATE PARTITIONS
         /////std::cout<<"////////////////////////PARTITION "<<i<<" /////////////////////////////////////////////////////////////////"<<std::endl;
-        std::string p1,p2;
+        /*std::string p1,p2;
         p1.resize(i);
         p2.resize(p_n-i);
 
         std::copy(pattern.begin(),pattern.begin()+i,p1.begin());
         std::copy(pattern.begin()+i,pattern.end(),p2.begin());
-        std::reverse(p1.begin(),p1.end());
+        std::reverse(p1.begin(),p1.end());*/
         //BINARY SEARCH OVER THE Frev SORT RULES
         /////// std::cout<<"prefijo rev: "<<p1<<"\t sufijo: "<<p2;
         /////auto start = timer::now();
@@ -556,13 +556,13 @@ void SelfGrammarIndexPTS::locate( std::string & pattern, sdsl::bit_vector & occ)
     {
         // CREATE PARTITIONS
         /////std::cout<<"////////////////////////PARTITION "<<i<<" /////////////////////////////////////////////////////////////////"<<std::endl;
-        std::string p1,p2;
+       /* std::string p1,p2;
         p1.resize(i);
         p2.resize(p_n-i);
 
         std::copy(pattern.begin(),pattern.begin()+i,p1.begin());
         std::copy(pattern.begin()+i,pattern.end(),p2.begin());
-        std::reverse(p1.begin(),p1.end());
+        std::reverse(p1.begin(),p1.end());*/
         //BINARY SEARCH OVER THE Frev SORT RULES
         /////// std::cout<<"prefijo rev: "<<p1<<"\t sufijo: "<<p2;
         /////auto start = timer::now();

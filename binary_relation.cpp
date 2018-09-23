@@ -186,24 +186,15 @@ binary_relation::bin_long binary_relation::unmap(const bin_long & sufx) const {
 
 void binary_relation::save(std::fstream & fin) {
 
-    std::cout<<"saving binary_relation\n";
-    sdsl::serialize(SB,fin);
-    std::cout<<"\tsdsl::serialize(SB,fin);\n";
-    sdsl::serialize(SL,fin);
-    std::cout<<"\tsdsl::serialize(SL,fin);\n";
-    sdsl::serialize(XA,fin);
-    std::cout<<"\tsdsl::serialize(XA,fin);\n";
-    sdsl::serialize(XB,fin);
-    std::cout<<"\tsdsl::serialize(XB,fin);\n";
+    sdsl::serialize(SB, fin);
+    sdsl::serialize(SL, fin);
+    sdsl::serialize(XA, fin);
+    sdsl::serialize(XB, fin);
 
-    sdsl::serialize(xb_rank1,fin);
-    std::cout<<"\tsdsl::serialize(xb_rank1,fin);\n";
-    sdsl::serialize(xb_sel0,fin);
-    std::cout<<"\tsdsl::serialize(xb_sel0,fin);\n";
-    sdsl::serialize(xb_sel1,fin);
-    std::cout<<"\tsdsl::serialize(xb_sel1,fin);\n";
-    sdsl::serialize(xa_rank1,fin);
-    std::cout<<"\tsdsl::serialize(xa_rank1,fin);\n";
+    sdsl::serialize(xb_rank1, fin);
+    sdsl::serialize(xb_sel0, fin);
+    sdsl::serialize(xb_sel1, fin);
+    sdsl::serialize(xa_rank1, fin);
 }
 
 void binary_relation::load(std::fstream & fout) {

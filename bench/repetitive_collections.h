@@ -13,7 +13,8 @@ using namespace std;
 
 
 std::map<std::string,uint> collections_code = {
-        {"einstein.de.txt",0}
+        {"einstein.de.txt",0},
+        {"abracadabra.txt",1}
         //{"../test/collection/repetitve/reals/einstein.de.txt",0}
 };
 

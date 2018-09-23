@@ -178,21 +178,22 @@ void sipt_locate(benchmark::State& state)
     //data="abracadabra";
     //data="panamabanana";
     //data="andabamananaenlamananalabanana";
-    //data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra";
+    data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra";
     ///data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra" + data;
     //self_index.build(data);
 
-    SelfGrammarIndexPTS self_index(8);
-        self_index.build(data);
-   //     self_index.save(f_idx);
-   // f_idx.close();
+    /*SelfGrammarIndexPTS self_index2(2);
+    self_index2.build(data);
+    self_index2.save(f_idx);
+    f_idx.close();*/
 
 
+    SelfGrammarIndexPTS *self_index = new SelfGrammarIndexPTS(2);
+    std::fstream ptf2("0.gpts8idx", std::ios::in| std::ios::binary);
+    self_index->load(ptf2);
+    ptf2.close();
 
-        /*SelfGrammarIndexPT self_index;
-    std::fstream ptf("pt_index_test", std::ios::in| std::ios::binary);
-    self_index.load(ptf);
-    ptf.close();*/
+
     /**/
 
 
@@ -244,12 +245,18 @@ void sipt_locate(benchmark::State& state)
     }
 */
 
+    std::vector<string> inp;
+    std::fstream infin("input_patt.txt", std::ios::in| std::ios::binary);
+    while (!infin.eof() && std::getline(infin, buff)) {
+        inp.push_back(buff);
+    }
+
     uint R = 100;
     std::srand(std::time(nullptr));
     uint t = 0;
     double total_time = 0;
     std::fstream fpp("prob_pattern_pt2",std::ios::in);
-
+    uint j_patt = 0;
 
     while (--R) {
 
@@ -276,7 +283,8 @@ void sipt_locate(benchmark::State& state)
         if(patt.empty())continue;
 
 
-        ///patt = "    b";
+        patt = inp[j_patt];
+        j_patt++;
         uint noc = 0;
         auto start = timer::now();
         size_t pos = data.find(patt, 0);
@@ -289,17 +297,17 @@ void sipt_locate(benchmark::State& state)
         auto stop = timer::now();
         ////std::cout<<patt<<std::endl;
         auto start_ = timer::now();
-        self_index.locate(patt, _occ);
+        self_index->locate(patt, _occ);
         auto stop_ = timer::now();
 
         unsigned long tttt = duration_cast<microseconds>(stop_ - start_).count();
         EXPECT_EQ(_X,_occ);
         if(_occ != _X )
         {
-            self_index.locate(patt, _occ);
+        //    self_index->locate(patt, _occ);
             std::cout<<patt<<std::endl;
-            fpp << patt;
-            return;
+  //          fpp << patt;
+//            return;
         }
 
         //

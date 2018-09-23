@@ -342,35 +342,20 @@ void compressed_grammar::save(std::fstream &f) {
 
     std::cout<<"saving compressed_grammar\n";
     sdsl::serialize(X_p      ,f);
-    std::cout<<"\tsdsl::serialize(X_p      ,f);\n";
     sdsl::serialize(Z        ,f);
-    std::cout<<"\tsdsl::serialize(Z        ,f);\n";
     sdsl::serialize(select0_Z,f);
-    std::cout<<"\tsdsl::serialize(select0_Z,f);\n";
     sdsl::serialize(select1_Z,f);
-    std::cout<<"\tsdsl::serialize(select1_Z,f);\n";
     sdsl::serialize(rank1_Z  ,f);
-    std::cout<<"\tsdsl::serialize(rank1_Z  ,f);\n";
     sdsl::serialize(rank0_Z  ,f);
-    std::cout<<"\tsdsl::serialize(rank0_Z  ,f);\n";
     sdsl::serialize(F        ,f);
-    std::cout<<"\tsdsl::serialize(F        ,f);\n";
     sdsl::serialize(F_inv    ,f);
-    std::cout<<"\t sdsl::serialize(F_inv    ,f);\n";
     sdsl::serialize(Y        ,f);
-    std::cout<<"\tsdsl::serialize(Y        ,f);\n";
     sdsl::serialize(rank_Y   ,f);
-    std::cout<<"\t sdsl::serialize(rank_Y   ,f);\n";
     sdsl::serialize(L        ,f);
-    std::cout<<"\tsdsl::serialize(L        ,f);\n";
     sdsl::serialize(select_L ,f);
-    std::cout<<"\tsdsl::serialize(select_L ,f);\n";
     m_tree.save(f);
-    std::cout<<"\tm_tree.sav    e(f);\n";
     left_path.save(f);
-    std::cout<<"\tleft_path.save(f);\n";
     right_path.save(f);
-    std::cout<<"\tright_path.save(f);\n";
     size_t n = alp.size();
     sdsl::serialize(n ,f);
     for (auto &&  c: alp) {
@@ -410,6 +395,7 @@ void compressed_grammar::load(std::fstream & f) {
     right_path.load(f);
     size_t n;
     sdsl::load(n,f);
+    alp.clear();
     alp.resize(n);
     for (size_t i =0 ; i < n ; ++i) {
         unsigned char c ;
