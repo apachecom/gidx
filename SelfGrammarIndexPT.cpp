@@ -234,6 +234,7 @@ void SelfGrammarIndexPT::locate2( std::string & pattern, sdsl::bit_vector & occ)
     size_t p_n = pattern.size();
     const auto& g_tree = _g.get_parser_tree();
     size_t nnodes = g_tree.subtree(g_tree.root());
+
     std::vector<bool> mark(nnodes,0);
 
     for (size_t i = 1; i <= p_n ; ++i)
@@ -388,14 +389,12 @@ void SelfGrammarIndexPT::locate2( std::string & pattern, sdsl::bit_vector & occ)
         ////std::cout<<"\t\tcheck ranges time:" <<duration_cast<nanoseconds>(stop-start).count()<<"(ns)"<<std::endl;
         // CHECK THE RANGE
 
-        std::cout<<" END THE PATRICIA TREE"<<std::endl;
-
         std::vector< std::pair<size_t,size_t> > pairs;
         ////start = timer::now();
         /////////////////////////////////////////////////////////////////////////////////////////
 
         binary_relation::bin_long  x1 = (uint)p_r1,x2 = (uint)p_r2,y1 = (uint)p_c1,y2 = (uint)p_c2;
-        grid.range(x1,x2,y1,y2,pairs);
+        grid.range2(x1,x2,y1,y2,pairs);
 
 
 
@@ -412,7 +411,7 @@ void SelfGrammarIndexPT::locate2( std::string & pattern, sdsl::bit_vector & occ)
         for (auto &pair : pairs) {
 
 
-            size_t p = grid.labels(pair.first, pair.second);
+            size_t p = grid.first_label_col(pair.second);
             size_t pos_p = _g.offsetText(g_tree[p]);
             unsigned int parent = g_tree.parent(g_tree[p]);
             long int  l = (- len + pos_p) - _g.offsetText(parent);
@@ -421,8 +420,6 @@ void SelfGrammarIndexPT::locate2( std::string & pattern, sdsl::bit_vector & occ)
             {
                 mark[p] = true;
                 find_second_occ(l,parent,occ);
-            }else{
-                std::cout<<"repetition"<<std::endl;
             }
             ///start = timer::now();
 
@@ -624,7 +621,7 @@ void SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ) 
         /////////////////////////////////////////////////////////////////////////////////////////
 
         binary_relation::bin_long  x1 = (uint)p_r1,x2 = (uint)p_r2,y1 = (uint)p_c1,y2 = (uint)p_c2;
-        grid.range(x1,x2,y1,y2,pairs);
+        grid.range2(x1,x2,y1,y2,pairs);
 
 
 
@@ -641,7 +638,7 @@ void SelfGrammarIndexPT::locate( std::string & pattern, sdsl::bit_vector & occ) 
         for (auto &pair : pairs) {
 
 
-            size_t p = grid.labels(pair.first, pair.second);
+            size_t p = grid.first_label_col(pair.second);
             size_t pos_p = _g.offsetText(g_tree[p]);
             unsigned int parent = g_tree.parent(g_tree[p]);
             long int  l = (- len + pos_p) - _g.offsetText(parent);

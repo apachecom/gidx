@@ -25,6 +25,8 @@ using namespace cds_static;
 
 #define QGRAM_DEF 4
 #define MAX_LENGTH_PATTERN 10
+
+std::string path = "../files/";
 /*
  *
 auto lz77build = [](benchmark::State &st, const string &file_collection){
@@ -69,7 +71,7 @@ auto lzEndbuild = [](benchmark::State &st, const string &file_collection){
 */
 auto hybbuild = [](benchmark::State &st, const string &file_collection){
 
-    std::string filename = std::to_string(collections_code[file_collection]);
+    std::string filename = path+std::to_string(collections_code[file_collection]);
     char* _f = (char *)filename.c_str();
 
     char* input_file_parser = (char*)file_collection.c_str();
@@ -93,7 +95,7 @@ auto hybbuild = [](benchmark::State &st, const string &file_collection){
 
 auto ribuild = [](benchmark::State &st, const string &file_collection){
 
-    std::string filename = std::to_string(collections_code[file_collection]);
+    std::string filename = path+std::to_string(collections_code[file_collection]);
     char* _f = (char *)filename.c_str();
 
     fstream f_ridx(std::to_string(collections_code[file_collection])+".ri", std::ios::out | std::ios::binary);
@@ -126,7 +128,7 @@ auto ribuild = [](benchmark::State &st, const string &file_collection){
 
 auto slpbuild = [](benchmark::State &st, const string &file_collection){
 
-    std::string filename = std::to_string(collections_code[file_collection]);
+    std::string filename = path+std::to_string(collections_code[file_collection]);
     char* _f = (char *)filename.c_str();
     RePairSLPIndex *indexer = new RePairSLPIndex();
 
@@ -180,12 +182,19 @@ auto g_imp_build = [](benchmark::State &st, const string &file_collection){
         return 0;
     }
     std::string buff;
+    unsigned char buffer[1000];
+    while(!f.eof()){
+        f.read((char*)buffer,1000);
+        data.append((char*) buffer,f.gcount());
+    }
+/*
     while (!f.eof() && std::getline(f, buff)) {
         data += buff;
-    }
+    }*/
+
     for (int i = 0; i < data.size(); ++i) {
         if(data[i] == 0 || data[i] == 1)
-            data[i] = 'Z';
+            data[i] = 2;
     }
     SelfGrammarIndexPT* g_index = new SelfGrammarIndexPT();
     for (auto _ : st)
@@ -193,7 +202,7 @@ auto g_imp_build = [](benchmark::State &st, const string &file_collection){
         g_index->build(data);
     }
 
-    fstream f_gidx(std::to_string(collections_code[file_collection])+".gidx", std::ios::out | std::ios::binary);
+    fstream f_gidx(path+std::to_string(collections_code[file_collection])+".gidx", std::ios::out | std::ios::binary);
     g_index->save(f_gidx);
     st.counters["Size"] = g_index->size_in_bytes();
 };
@@ -207,12 +216,16 @@ auto g_imp_pts_build = [](benchmark::State &st, const string &file_collection, c
         return 0;
     }
     std::string buff;
-    while (!f.eof() && std::getline(f, buff)) {
-        data += buff;
+    unsigned char buffer[1000];
+    while(!f.eof()){
+        f.read((char*)buffer,1000);
+        data.append((char*) buffer,f.gcount());
     }
+
+
     for (int i = 0; i < data.size(); ++i) {
         if(data[i] == 0 || data[i] == 1)
-            data[i] = 'Z';
+            data[i] = 2;
     }
     SelfGrammarIndexPTS* g_index = new SelfGrammarIndexPTS(sampling);
     for (auto _ : st)
@@ -220,7 +233,7 @@ auto g_imp_pts_build = [](benchmark::State &st, const string &file_collection, c
         g_index->build(data);
     }
 
-    fstream f_gidx(std::to_string(collections_code[file_collection])+".gpts"+std::to_string(sampling)+"idx", std::ios::out | std::ios::binary);
+    fstream f_gidx(path+std::to_string(collections_code[file_collection])+".gpts"+std::to_string(sampling)+"idx", std::ios::out | std::ios::binary);
     g_index->save(f_gidx);
     st.counters["Size"] = g_index->size_in_bytes();
 };
@@ -236,12 +249,14 @@ auto g_imp_bs_build = [](benchmark::State &st, const string &file_collection){
         return 0;
     }
     std::string buff;
-    while (!f.eof() && std::getline(f, buff)) {
-        data += buff;
+    unsigned char buffer[1000];
+    while(!f.eof()){
+        f.read((char*)buffer,1000);
+        data.append((char*) buffer,f.gcount());
     }
     for (int i = 0; i < data.size(); ++i) {
         if(data[i] == 0 || data[i] == 1)
-            data[i] = 'Z';
+            data[i] = 2;
     }
     SelfGrammarIndexBS* g_index = new SelfGrammarIndexBS();
     for (auto _ : st)
@@ -249,7 +264,7 @@ auto g_imp_bs_build = [](benchmark::State &st, const string &file_collection){
         g_index->build(data);
     }
 
-    fstream f_gidx(std::to_string(collections_code[file_collection])+".gbsidx", std::ios::out | std::ios::binary);
+    fstream f_gidx(path+std::to_string(collections_code[file_collection])+".gbsidx", std::ios::out | std::ios::binary);
     g_index->save(f_gidx);
     st.counters["Size"] = g_index->size_in_bytes();
 };

@@ -120,12 +120,12 @@ cxx_executable_with_flags(building_csa_lcp_rmq "" "${LIBS};benchmark;sdsl;divsuf
 cxx_executable_with_flags(suffixes_grammar "" "${LIBS};benchmark;sdsl;divsufsort;divsufsort64" tests/suffixes_grammar.cpp ${SOURCE_FILES})
 
 
-
-
-
-
 cxx_executable_with_flags(idx_locate_performance "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/idx_locate_performance.cpp ${SOURCE_FILES})
+cxx_executable_with_flags(idx_extract_performance "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/idx_extract_performance.cpp ${SOURCE_FILES})
 cxx_executable_with_flags(idx_build "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/idx_build.cpp ${SOURCE_FILES})
+cxx_executable_with_flags(create_files_patterns "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/create_files_patterns.cpp ${SOURCE_FILES})
+cxx_executable_with_flags(grammar_benchmark "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/grammar_benchmark.cpp ${SOURCE_FILES})
+cxx_executable_with_flags(binary_relation_benchmark "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/binary_relation_benchmark.cpp ${SOURCE_FILES})
 
 target_link_libraries(improved_grammar_index sdsl)
 target_link_libraries(improved_grammar_index cds)

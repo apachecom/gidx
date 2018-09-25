@@ -317,18 +317,26 @@ void SelfGrammarIndex::find_second_occ(long int & offset, unsigned int & node, s
 
 void SelfGrammarIndex::display(const std::size_t & i, const std::size_t & j, std::string & str) {
 
-    assert(i >= 0 && j >= 0 && i <= j && i < _g.get_size_text() && j < _g.get_size_text()); // border assert
+    //xassert(i >= 0 && j >= 0 && i <= j && i < _g.get_size_text() && j < _g.get_size_text()); // border assert
 
     // FIND THE NODE WHERE i OCCURS
+
     const auto& Tg = _g.get_parser_tree();
     long long int p = i;
 
     std::stack<dfuds::dfuds_tree::dfuds_long> s_path;
-    dfuds::dfuds_tree::dfuds_long root =Tg.root();
 
+    dfuds::dfuds_tree::dfuds_long root = Tg.root();
+
+
+    //auto start = timer::now();
     Tg.path(root , [&p,&s_path,this,&Tg](dfuds::dfuds_tree::dfuds_long &node, dfuds::dfuds_tree::dfuds_long &next_node)->bool{
 
         s_path.push(node);
+
+
+       /* auto start = timer::now();
+*/
         if(Tg.isleaf(node)){
 
             // If node is a second occurence
@@ -349,35 +357,100 @@ void SelfGrammarIndex::display(const std::size_t & i, const std::size_t & j, std
         dfuds::dfuds_tree::dfuds_long ch = Tg.children(node);
         dfuds::dfuds_tree::dfuds_long ls = 1, hs = ch;
 
+      /*  auto stop = timer::now();
+        std::cout<<"bs_case: "<<duration_cast<nanoseconds>(stop - start).count()<<std::endl;
+
+
+//        start = timer::now();
+//*/
+//
+//        std::vector<uint32_t > chs(ch);
+//        for (int k = 0; k < ch; ++k) {
+//            chs[k] = k+1;
+//        }
+//        uint child,pos_m;
+//        bool found = false;
+//
+//        auto ppp = std::lower_bound(chs.begin(),chs.end(),p,[&pos_m,&next_node,&child,&found,this, &Tg,&node](const uint32_t& a, const  long long int &p){
+//            child = Tg.child(node,a);
+//            pos_m = _g.offsetText(child);
+//            if(pos_m == p) found = true;
+//            return pos_m < p;
+//        });
+//
+//        if(!found)
+//            next_node = child;
+//        else
+//            next_node = Tg.child(node,*ppp);
+//
+//
+//        /*stop = timer::now();
+//        std::cout<<"childs: "<<duration_cast<nanoseconds>(stop - start).count()<<std::endl;
+//*/
+//
+//        return true;
+
+
+
+
+
+
+//        start = timer::now();
+
         dfuds::dfuds_tree::dfuds_long  l = Tg.find_child(node,ls,hs,[&p,this](const dfuds::dfuds_tree::dfuds_long &child)->bool{
             size_t pos_m = _g.offsetText(child);
             return p < pos_m;
         });
 
-
         next_node = Tg.child(node,l);
+
+
+ //       stop = timer::now();
+ //       std::cout<<"childs: "<<duration_cast<nanoseconds>(stop - start).count()<<std::endl;
         return true;
     });
+   /* auto stop = timer::now();
+    std::cout<<"path: "<<duration_cast<nanoseconds>(stop - start).count()<<std::endl;
+*/
 
+
+
+  //  start = timer::now();
     long long int off = j-i+1;
     str.resize(off);
     size_t pos = 0;
-    expand_prefix(_g[Tg.pre_order(s_path.top())],str,(size_t)off,pos);
+    bp_expand_prefix(_g[Tg.pre_order(s_path.top())],str,(size_t)off,pos);
 
     while(!s_path.empty() && pos < off ){
 
         size_t node = s_path.top();
         size_t parent = Tg.parent(node);
-        size_t r = Tg.childrank(node);
-        size_t n_ch = Tg.children(parent);
+        //size_t r = Tg.childrank(node);
+        auto lnode = Tg.lchild(parent);
+        auto current = Tg.nsibling(node);
+        //size_t n_ch = Tg.children(parent);
+        while(current != lnode && pos < off)
+        {
+            node = Tg.pre_order(current);
+            bp_expand_prefix(_g[node],str,(size_t)off,pos);
+            current = Tg.nsibling(current);
+        }
 
-        for (auto k = r+1; k <= n_ch && pos < off ; ++k)
+        if(current == lnode && pos < off)
+        {
+            node = Tg.pre_order(current);
+            bp_expand_prefix(_g[node],str,(size_t)off,pos);
+        }
+
+        /*for (auto k = r+1; k <= n_ch && pos < off ; ++k)
         {
             node = Tg.pre_order(Tg.child(parent,k));
-            expand_prefix(_g[node],str,(size_t)off,pos);
-        }
+            bp_expand_prefix(_g[node],str,(size_t)off,pos);
+        }*/
         s_path.pop();
     }
+    /*stop = timer::now();
+    std::cout<<"expand: "<<duration_cast<nanoseconds>(stop - start).count()<<std::endl;*/
 
 }
 
@@ -623,7 +696,7 @@ int SelfGrammarIndex::cmp_suffix(const compressed_grammar::g_long & X_i, std::st
 bool SelfGrammarIndex::bp_expand_prefix(const compressed_grammar::g_long &X_i,std::string & s, const size_t & l,size_t & pos) const
 {
 
-    assert(X_i > 0 && X_i < _g.n_rules());
+    //assert(X_i > 0 && X_i < _g.n_rules());
 
     if(_g.isTerminal(X_i))
     {
@@ -682,6 +755,7 @@ bool SelfGrammarIndex::bp_expand_prefix(const compressed_grammar::g_long &X_i,st
     while(depht_node_xi > 0)
     {
         auto ancestor_l_1  = bp_rep.levelancestor(node_xi_left_path,depht_node_xi-1);
+
         size_t  preoreder_trie = bp_rep.pre_order(ancestor_l_1);
         size_t  X = seq[preoreder_trie-1];
         size_t  preorder_parser_tree = _g.select_occ(X,1);

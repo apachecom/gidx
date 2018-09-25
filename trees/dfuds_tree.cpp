@@ -48,8 +48,11 @@ dfuds_tree::dfuds_long dfuds_tree::operator[](const dfuds_tree::dfuds_long & i) 
 
 dfuds_tree::dfuds_long dfuds_tree::childrank(const dfuds_tree::dfuds_long & v) const{
     if(v == 3) return 0;
+
     size_t bp_parent = bps.find_open(v-1);
+
     return succ0(bp_parent) - bp_parent;
+
 }
 
 dfuds_tree::dfuds_long dfuds_tree::children(const dfuds_tree::dfuds_long &v) const{
@@ -89,7 +92,11 @@ dfuds_tree::dfuds_long dfuds_tree::child(const dfuds_tree::dfuds_long & v, const
 dfuds_tree::dfuds_long dfuds_tree::parent(const dfuds_tree::dfuds_long & v) const{
     ///assert(v >= 3 && v < bit_vector.size());
     if(v == 3) return 0;
-    return pred0( bps.find_open(v-1) )+1;
+    /*auto p = bps.find_open(v-1);
+    while(bit_vector[p-1]!=0)--p;
+    return p;*/
+    // return pred0( bps.find_open(v-1) )+1;
+    return pred0( bps.find_open(v-1) );
 }
 
 dfuds_tree::dfuds_long dfuds_tree::pred0(const dfuds_tree::dfuds_long &i)const {
@@ -182,4 +189,14 @@ dfuds_tree &dfuds_tree::operator=(const dfuds_tree& T) {
     select_00 = sdsl::select_support_mcl<00,2>(&bit_vector);
     select_0  = bv::select_0_type(&bit_vector);
     return *this;
+}
+
+dfuds_tree::dfuds_long dfuds_tree::nsibling(const dfuds_tree::dfuds_long & v) const {
+    //if(bit_vector[bps.find_open(v-1)-1] != 1) return 0;
+    return bps.fwd_excess(v-1,-1)+1;
+}
+
+dfuds_tree::dfuds_long dfuds_tree::lchild(const dfuds_tree::dfuds_long & v) const {
+    if(bit_vector[v] == false) return 0;
+    return bps.find_close(v)+1;
 }

@@ -13,9 +13,17 @@ using namespace std;
 
 
 std::map<std::string,uint> collections_code = {
-        {"einstein.de.txt",0},
-        {"abracadabra.txt",1}
-        //{"../test/collection/repetitve/reals/einstein.de.txt",0}
+        //{"../test/collection/repetitve/reals/einstein.de.txt"   ,0},
+        //{"einstein.de.txt"   ,0},
+        {"../tests/collections/repetitive/reals/cere"              ,1},
+        {"../tests/collections/repetitive/reals/coreutils"         ,2},
+        {"../tests/collections/repetitive/reals/einstein.de.txt"   ,3},
+        {"../tests/collections/repetitive/reals/einstein.en.txt"   ,4},
+        {"../tests/collections/repetitive/reals/Escherichia_Coli"  ,5},
+        {"../tests/collections/repetitive/reals/influenza"         ,6},
+        {"../tests/collections/repetitive/reals/kernel"            ,7},
+        {"../tests/collections/repetitive/reals/para"              ,8},
+        {"../tests/collections/repetitive/reals/world_leaders"     ,9}
 };
 
 

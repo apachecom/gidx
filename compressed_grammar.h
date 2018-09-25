@@ -20,7 +20,7 @@ class compressed_grammar {
         typedef unsigned int g_long;
         typedef grammar plain_grammar;
         typedef  dfuds::dfuds_tree parser_tree;
-        //typedef  sdsl::wt_ap< sdsl::wt_huff<sdsl::bit_vector, sdsl::rank_support_v5<>> ,sdsl::wm_int<> > wavelet_tree;
+        //typedef  sdsl::wt_ap<> wavelet_tree;
         typedef  sdsl::wt_gmr<> wavelet_tree;
         typedef  sdsl::sd_vector<> z_vector;
         typedef  sdsl::sd_vector<> y_vector;
@@ -92,6 +92,7 @@ class compressed_grammar {
         /*
          * Return the number of rules
          * */
+        const z_vector& get_Z() const{ return Z;}
 
         g_long n_rules()const;
         /*
@@ -99,6 +100,8 @@ class compressed_grammar {
          * the i-th occurrence of variable Xi
          * */
         g_long select_occ(const g_long&, const g_long& ) const;
+
+        bool is_first_occ(const g_long&) const;
 
         /*
          *  return the variable Xj associated to the i-th preorder node

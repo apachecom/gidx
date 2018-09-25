@@ -55,6 +55,11 @@ namespace dfuds {
          * */
         dfuds_long operator[](const dfuds_long &)const;
 
+        dfuds_long nsibling(const dfuds_long &)const;
+
+        dfuds_long lchild(const dfuds_long &)const;
+
+
         /*
          *  return the i-th child of a node
          * */

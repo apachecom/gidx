@@ -197,7 +197,7 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
      * */
     for (size_t  i = 1; i <= p_n ; ++i)
     {
-
+/*
 
             std::string p1,p2;
             p1.resize(i);
@@ -205,7 +205,7 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
 
             std::copy(pattern.begin(),pattern.begin()+i,p1.begin());
             std::copy(pattern.begin()+i,pattern.end(),p2.begin());
-            std::reverse(p1.begin(),p1.end());
+            std::reverse(p1.begin(),p1.end());*/
 
         ///std::cout<<"************************************************************"<<std::endl;
         auto itera = pattern.begin() + i-1;

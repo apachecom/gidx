@@ -15,8 +15,11 @@ compressed_grammar::~compressed_grammar() {
 compressed_grammar::g_long compressed_grammar::select_occ(const g_long & X, const g_long & j) const {
    //// assert(j > 0);
     ////return (j == 1 ? select1_Z(F[X]) : select0_Z(X_p.select(j - 1, X) + 1)) + 1;
+    auto a = rank1_Z(Z.size());
     if(j == 1 )
         return select1_Z(F[X])+1;
+
+
     return select0_Z(X_p.select(j - 1, X) + 1)+1;
 
     ////return (j == 1 ? select1_Z(F[X]) : select0_Z(mX[make_pair((uint)X,(uint)j-1)] + 1)) + 1;
@@ -656,6 +659,10 @@ const std::vector<unsigned char> compressed_grammar::get_alp() const {
 
 compressed_grammar::g_long compressed_grammar::terminal_rule(const compressed_grammar::g_long &i) const {
     return select_Y(i);
+}
+
+bool compressed_grammar::is_first_occ(const compressed_grammar::g_long & j) const {
+    return Z[j-1];
 }
 
 

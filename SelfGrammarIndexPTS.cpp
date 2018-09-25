@@ -264,7 +264,7 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
 
         //auto rows = rules_trie.matches(p1.begin(),p1.end());
 
-        auto start = timer::now();
+        //auto start = timer::now();
 
         /*
          *
@@ -278,7 +278,6 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
 
         const auto& rules_t = rules_p_tree.get_tree();
         auto node_match_rules = rules_p_tree.node_match(sp1);
-        const auto& rules_leaf = rules_t.leafrank(node_match_rules);
 
         size_t p_r1 = rules_t.leafrank(node_match_rules);
 
@@ -314,8 +313,8 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
         if(r != 0 || end_r_string != begin_r_string-1 )
             continue;
 
-        auto stop = timer::now();
-        std::cout<<"\t\trules PT search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
+        /*auto stop = timer::now();
+        std::cout<<"\t\trules PT search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;*/
 
         /////////////////
 
@@ -374,14 +373,14 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
         * Extracting range for (p[k...m]) in the suffix patricia tree
         *
         * */
-        start = timer::now();
+        //start = timer::now();
         m_patricia::string_pairs sp2(pattern,2);
         sp2.set_left(i);
         sp2.set_right(pattern.size()-1);
 
         const auto& suff_t = sfx_p_tree.get_tree();
         auto node_match_suff = sfx_p_tree.node_match(sp2);
-        const auto& suff_leaf = suff_t.leafrank(node_match_suff);
+        //const auto& suff_leaf = suff_t.leafrank(node_match_suff);
 
         size_t p_c1 = suff_t.leafrank(node_match_suff);
 
@@ -415,8 +414,8 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
         if(r != 0 )
             continue;
 
-        stop = timer::now();
-        std::cout<<"\t\tsufx PT search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
+       // auto stop = timer::now();
+       // std::cout<<"\t\tsufx PT search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
 
 
 
@@ -474,15 +473,15 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
         // CHECK THE RANGE
 
         std::vector< std::pair<size_t,size_t> > pairs;
-        ////start = timer::now();
+       // start = timer::now();
         /////////////////////////////////////////////////////////////////////////////////////////
 
-        start = timer::now();
+        /*start = timer::now();*/
         binary_relation::bin_long  x1 = (uint)p_r1,x2 = (uint)p_r2,y1 = (uint)p_c1,y2 = (uint)p_c2;
         grid.range2(x1,x2,y1,y2,pairs);
 
-        stop = timer::now();
-        std::cout<<"\t\t2d search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
+        //stop = timer::now();
+        //std::cout<<"\t\t2d search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
 
 
         ///std::cout<<"pairs size "<<pairs.size()<<std::endl;
@@ -498,21 +497,25 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
 
 
 
-        start = timer::now();
+        /*start = timer::now();*/
         for (auto &pair : pairs) {
 
 
             //size_t p = grid.labels(pair.first, pair.second);
             size_t p = grid.first_label_col(pair.second);
-            size_t pos_p = _g.offsetText(g_tree[p]);
-            unsigned int parent = g_tree.parent(g_tree[p]);
-            long int  l = (- len + pos_p) - _g.offsetText(parent);
 
-
-            ///start = timer::now();
             if(mark[p] == false)
             {
                 mark[p] = true;
+                auto node_p = g_tree[p];
+                size_t pos_p = _g.offsetText(node_p);
+                unsigned int parent = g_tree.parent(node_p);
+                long int  l = (- len + pos_p) - _g.offsetText(parent);
+
+
+            ///start = timer::now();
+
+
                 find_second_occ(l,parent,occ);
             }
             //// stop = timer::now();
@@ -527,8 +530,8 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
             /////////////////////////////////////////////////////////////////////////////////////////
         }
 
-        stop = timer::now();
-        std::cout<<"\t\tsecond occ search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
+       // stop = timer::now();
+       // std::cout<<"\t\tsecond occ search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
 
     }
 
