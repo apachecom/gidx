@@ -43,10 +43,11 @@ class SelfGrammarIndexPT: protected SelfGrammarIndex {
 
 
         void build(const grammar_representation&, const range_search2d&, const m_patricia::compact_patricia_tree&,const m_patricia::compact_patricia_tree& ) ;
-
+        auto get_grammar(){ return _g;}
         unsigned long size_in_bytes() const override ;
         void locate2( std::string & , sdsl::bit_vector & );
         void locate( std::string& , sdsl::bit_vector &) override ;
+        void locate( std::string& , std::vector<uint> &) override ;
 
         void display(const std::size_t& , const std::size_t&, std::string & ) override ;
 

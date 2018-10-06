@@ -126,6 +126,7 @@ cxx_executable_with_flags(idx_build "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsor
 cxx_executable_with_flags(create_files_patterns "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/create_files_patterns.cpp ${SOURCE_FILES})
 cxx_executable_with_flags(grammar_benchmark "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/grammar_benchmark.cpp ${SOURCE_FILES})
 cxx_executable_with_flags(binary_relation_benchmark "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/binary_relation_benchmark.cpp ${SOURCE_FILES})
+cxx_executable_with_flags(selfgrammarnindex_benchmark "" "${LIBS};benchmark;slp;hsi;sdsl;divsufsort;divsufsort64;rmqrmmBP;cds" bench/selfgrammarindex_bench.cpp ${SOURCE_FILES})
 
 target_link_libraries(improved_grammar_index sdsl)
 target_link_libraries(improved_grammar_index cds)
@@ -133,3 +134,4 @@ target_link_libraries(improved_grammar_index divsufsort)
 target_link_libraries(improved_grammar_index divsufsort64)
 target_link_libraries(improved_grammar_index rmqrmmBP)
 target_link_libraries(improved_grammar_index hsi)
+

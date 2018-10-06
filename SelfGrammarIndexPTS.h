@@ -31,8 +31,9 @@ class SelfGrammarIndexPTS:SelfGrammarIndexPT{
         unsigned long size_in_bytes() const override ;
 
         void locate( std::string& , sdsl::bit_vector &) override ;
+        void locate( std::string & , std::vector<uint> & );
         void locate2( std::string & , sdsl::bit_vector & );
-
+        auto get_grammar(){ return _g;}
         void display(const std::size_t& , const std::size_t&, std::string & ) override ;
 
         void save(std::fstream& ) override;

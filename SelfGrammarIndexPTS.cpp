@@ -22,9 +22,9 @@ void SelfGrammarIndexPTS::build(const std::string &text)
     not_compressed_grammar.buildRepair(text);
     //not_compressed_grammar.print(text);
 
-    ///std::cout<<"\t number of rules "<<not_compressed_grammar.n_rules()<<std::endl;
-    ///std::cout<<"\t total size of rules "<<not_compressed_grammar.get_size()<<std::endl;
-    ///std::cout<<"\t size of the representation "<<not_compressed_grammar.size_in_bytes()*1/(1024*1024)<<"(mb)"<<std::endl;
+    std::cout<<"\t number of rules "<<not_compressed_grammar.n_rules()<<std::endl;
+    std::cout<<"\t total size of rules "<<not_compressed_grammar.get_size()<<std::endl;
+    std::cout<<"\t size of the representation "<<not_compressed_grammar.size_in_bytes()*1/(1024*1024)<<"(mb)"<<std::endl;
 
 
     /*
@@ -46,7 +46,9 @@ void SelfGrammarIndexPTS::build(const std::string &text)
     std::cout<<"Compute suffix grammar"<<std::endl;
 
     std::vector< std::pair< std::pair<size_t ,size_t >,std::pair<size_t ,size_t > > > grammar_sfx;
+
     const auto& gtree = _g.get_parser_tree();
+
     unsigned long num_sfx = 0;
 
     for (auto r_begin = not_compressed_grammar.begin(); r_begin != not_compressed_grammar.end(); ++r_begin) {
@@ -68,6 +70,7 @@ void SelfGrammarIndexPTS::build(const std::string &text)
             num_sfx++;
         }
     }
+
     std::cout<<"\t number of suffixes "<<num_sfx<<std::endl;
 
     /*
@@ -233,38 +236,15 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
         return;
     }
 
+
     size_t p_n = pattern.size();
-    ///size_t n_sj = grid.n_columns();
     const auto& g_tree = _g.get_parser_tree();
-    size_t nnodes = g_tree.subtree(g_tree.root()) + 1;
+    size_t nnodes = g_tree.subtree(g_tree.root());
 
     std::vector<bool> mark(nnodes,0);
-    /*vector<size_t > S (n_sj,1);
-    for (size_t j = 0; j < n_sj; ++j)
-        S[j] = j+1;*/
-
-    /////std::cout<<"////////////////////////cadena "<<pattern<<" /////////////////////////////////////////////////////////////////"<<std::endl;
     for (size_t i = 1; i <= p_n ; ++i)
     {
-        // CREATE PARTITIONS
-        /////std::cout<<"////////////////////////PARTITION "<<i<<" /////////////////////////////////////////////////////////////////"<<std::endl;
-        /*std::string p1,p2;
-        p1.resize(i);
-        p2.resize(p_n-i);
-
-        std::copy(pattern.begin(),pattern.begin()+i,p1.begin());
-        std::copy(pattern.begin()+i,pattern.end(),p2.begin());
-        std::reverse(p1.begin(),p1.end());*/
-        //BINARY SEARCH OVER THE Frev SORT RULES
-        /////// std::cout<<"prefijo rev: "<<p1<<"\t sufijo: "<<p2;
-        /////auto start = timer::now();
-        /////////////////////////////////////////////////////////////////////////////////////////
         auto itera = pattern.begin() + i-1;
-
-
-        //auto rows = rules_trie.matches(p1.begin(),p1.end());
-
-        //auto start = timer::now();
 
         /*
          *
@@ -278,6 +258,7 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
 
         const auto& rules_t = rules_p_tree.get_tree();
         auto node_match_rules = rules_p_tree.node_match(sp1);
+        const auto& rules_leaf = rules_t.leafrank(node_match_rules);
 
         size_t p_r1 = rules_t.leafrank(node_match_rules);
 
@@ -313,8 +294,171 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
         if(r != 0 || end_r_string != begin_r_string-1 )
             continue;
 
-        /*auto stop = timer::now();
-        std::cout<<"\t\trules PT search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;*/
+       /*
+        *
+        * Extracting range for (p[k...m]) in the suffix patricia tree
+        *
+        * */
+        //start = timer::now();
+        m_patricia::string_pairs sp2(pattern,2);
+        sp2.set_left(i);
+        sp2.set_right(pattern.size()-1);
+
+        const auto& suff_t = sfx_p_tree.get_tree();
+        auto node_match_suff = sfx_p_tree.node_match(sp2);
+        const auto& suff_leaf = suff_t.leafrank(node_match_suff);
+
+        size_t p_c1 = suff_t.leafrank(node_match_suff);
+
+        auto begin_sfx_string = itera+1;
+        auto end_sfx_string = pattern.end() ;
+
+        bp_cmp_suffix_grammar(_st(p_c1),begin_sfx_string,end_sfx_string);
+
+        auto match = begin_sfx_string -itera-1;
+
+        auto locus_node_suff = sfx_p_tree.node_locus(sp2,match);
+
+        p_c1 = suff_t.leafrank(locus_node_suff);
+        size_t p_c2 = p_c1 + suff_t.leafnum(locus_node_suff) - 1;
+
+        begin_sfx_string = itera+1;
+        end_sfx_string = pattern.end() ;
+
+        sampling_range_suff(p_c1,p_c2,begin_sfx_string,end_sfx_string);
+
+
+        begin_sfx_string = itera+1;
+        end_sfx_string = pattern.end() ;
+        r = bp_cmp_suffix_grammar(p_c1,begin_sfx_string,end_sfx_string);
+        if(r != 0 )
+            continue;
+
+        begin_sfx_string = itera+1;
+        end_sfx_string = pattern.end() ;
+        r = bp_cmp_suffix_grammar(p_c2,begin_sfx_string,end_sfx_string);
+        if(r != 0 )
+            continue;
+
+
+        std::vector< std::pair<size_t,size_t> > pairs;
+
+        binary_relation::bin_long  x1 = (uint)p_r1,x2 = (uint)p_r2,y1 = (uint)p_c1,y2 = (uint)p_c2;
+        grid.range2(x1,x2,y1,y2,pairs);
+
+
+        long len = itera-pattern.begin() +1;
+
+
+        for (auto &pair : pairs) {
+
+            size_t p = grid.first_label_col(pair.second);
+            if(mark[p] == false)
+            {
+                mark[p] = true;
+                size_t pos_p = _g.offsetText(g_tree[p]);
+                unsigned int parent = g_tree.parent(g_tree[p]);
+                long int  l = (- len + pos_p) - _g.offsetText(parent);
+                find_second_occ(l,parent,occ);
+            }
+
+        }
+
+
+    }
+
+
+}
+
+void SelfGrammarIndexPTS::locate( std::string & pattern, std::vector<uint> &occ)
+{
+
+    if(pattern.size() == 1)
+    {
+        locate_ch(pattern[0],occ);
+        return;
+    }
+
+    size_t p_n = pattern.size();
+    ///size_t n_sj = grid.n_columns();
+
+    /*vector<size_t > S (n_sj,1);
+    for (size_t j = 0; j < n_sj; ++j)
+        S[j] = j+1;*/
+
+    /////std::cout<<"////////////////////////cadena "<<pattern<<" /////////////////////////////////////////////////////////////////"<<std::endl;
+    for (size_t i = 1; i <= p_n ; ++i)
+    {
+        // CREATE PARTITIONS
+        /////std::cout<<"////////////////////////PARTITION "<<i<<" /////////////////////////////////////////////////////////////////"<<std::endl;
+        /* std::string p1,p2;
+         p1.resize(i);
+         p2.resize(p_n-i);
+
+         std::copy(pattern.begin(),pattern.begin()+i,p1.begin());
+         std::copy(pattern.begin()+i,pattern.end(),p2.begin());
+         std::reverse(p1.begin(),p1.end());*/
+        //BINARY SEARCH OVER THE Frev SORT RULES
+        /////// std::cout<<"prefijo rev: "<<p1<<"\t sufijo: "<<p2;
+        /////auto start = timer::now();
+        /////////////////////////////////////////////////////////////////////////////////////////
+        auto itera = pattern.begin() + i-1;
+
+
+        //auto rows = rules_trie.matches(p1.begin(),p1.end());
+
+        //auto start = timer::now();
+
+        /*
+         *
+         * Extracting range for rev(p[1...k]) in the rule patricia tree
+         *
+         * */
+
+        m_patricia::rev_string_pairs sp1(pattern,1);
+        sp1.set_left(0);
+        sp1.set_right(i-1);
+
+        const auto& rules_t = rules_p_tree.get_tree();
+        auto node_match_rules = rules_p_tree.node_match(sp1);
+        const auto& rules_leaf = rules_t.leafrank(node_match_rules);
+
+        size_t p_r1 = rules_t.leafrank(node_match_rules);
+
+        auto begin_r_string = pattern.begin();
+        auto end_r_string = itera;
+
+        bp_cmp_suffix(_st(p_r1),end_r_string,begin_r_string);
+
+        auto match_rules = itera-end_r_string;
+
+        auto locus_node_rules = rules_p_tree.node_locus(sp1,match_rules);
+
+        p_r1 = rules_t.leafrank(locus_node_rules);
+        size_t p_r2 = p_r1 + rules_t.leafnum(locus_node_rules) - 1;
+
+        begin_r_string = pattern.begin();
+        end_r_string = itera;
+
+        sampling_range_rules(p_r1,p_r2,begin_r_string,end_r_string);
+
+
+        begin_r_string = pattern.begin();
+        end_r_string = itera;
+        auto r = bp_cmp_suffix(p_r1,end_r_string,begin_r_string);
+
+        if(r != 0 || end_r_string != begin_r_string-1)
+            continue;
+
+        begin_r_string = pattern.begin();
+        end_r_string = itera;
+        r = bp_cmp_suffix(p_r2,end_r_string,begin_r_string);
+
+        if(r != 0 || end_r_string != begin_r_string-1 )
+            continue;
+
+        //auto stop = timer::now();
+        /// std::cout<<"\t\trules PT search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
 
         /////////////////
 
@@ -380,7 +524,7 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
 
         const auto& suff_t = sfx_p_tree.get_tree();
         auto node_match_suff = sfx_p_tree.node_match(sp2);
-        //const auto& suff_leaf = suff_t.leafrank(node_match_suff);
+        const auto& suff_leaf = suff_t.leafrank(node_match_suff);
 
         size_t p_c1 = suff_t.leafrank(node_match_suff);
 
@@ -414,8 +558,8 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
         if(r != 0 )
             continue;
 
-       // auto stop = timer::now();
-       // std::cout<<"\t\tsufx PT search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
+        //stop = timer::now();
+        //std::cout<<"\t\tsufx PT search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
 
 
 
@@ -473,10 +617,10 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
         // CHECK THE RANGE
 
         std::vector< std::pair<size_t,size_t> > pairs;
-       // start = timer::now();
+        ////start = timer::now();
         /////////////////////////////////////////////////////////////////////////////////////////
 
-        /*start = timer::now();*/
+        //start = timer::now();
         binary_relation::bin_long  x1 = (uint)p_r1,x2 = (uint)p_r2,y1 = (uint)p_c1,y2 = (uint)p_c2;
         grid.range2(x1,x2,y1,y2,pairs);
 
@@ -492,32 +636,24 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
 
 
         long len = itera-pattern.begin() +1;
-        //const auto& g_tree = _g.get_parser_tree();
+        const auto& g_tree = _g.get_parser_tree();
         ////start = timer::now();
 
 
 
-        /*start = timer::now();*/
+        //start = timer::now();
         for (auto &pair : pairs) {
 
 
             //size_t p = grid.labels(pair.first, pair.second);
             size_t p = grid.first_label_col(pair.second);
-
-            if(mark[p] == false)
-            {
-                mark[p] = true;
-                auto node_p = g_tree[p];
-                size_t pos_p = _g.offsetText(node_p);
-                unsigned int parent = g_tree.parent(node_p);
-                long int  l = (- len + pos_p) - _g.offsetText(parent);
+            size_t pos_p = _g.offsetText(g_tree[p]);
+            unsigned int parent = g_tree.parent(g_tree[p]);
+            long int  l = (- len + pos_p) - _g.offsetText(parent);
 
 
             ///start = timer::now();
-
-
-                find_second_occ(l,parent,occ);
-            }
+            find_second_occ(l,parent,occ);
             //// stop = timer::now();
             ///std::cout<<"\t\tsearch_grammar_tree_second_occ time:" <<duration_cast<nanoseconds>(stop-start).count()<<"(ns)"<<std::endl;
 
@@ -530,12 +666,13 @@ void SelfGrammarIndexPTS::locate2( std::string & pattern, sdsl::bit_vector & occ
             /////////////////////////////////////////////////////////////////////////////////////////
         }
 
-       // stop = timer::now();
-       // std::cout<<"\t\tsecond occ search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
+        //stop = timer::now();
+        //std::cout<<"\t\tsecond occ search "<<duration_cast<nanoseconds>(stop - start).count()<<"(ns)"<<std::endl;
 
     }
 
 }
+
 
 
 void SelfGrammarIndexPTS::locate( std::string & pattern, sdsl::bit_vector & occ)

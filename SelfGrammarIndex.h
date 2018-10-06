@@ -31,6 +31,7 @@ class SelfGrammarIndex {
         //virtual void build(const grammar_representation&, const range_search2d& ) = 0;
 
         virtual void locate( std::string& , sdsl::bit_vector &) = 0;
+        virtual void locate( std::string& , std::vector<uint> &) = 0;
 
         virtual void display(const std::size_t& , const std::size_t&, std::string & );
 
@@ -39,14 +40,18 @@ class SelfGrammarIndex {
 
         virtual unsigned long size_in_bytes() const;
 
-    protected:
+        const grammar_representation& get_grammar() const { return _g;}
+        const range_search2d & get_grid() const { return grid;}
 
-        virtual void locate_ch( const char& , sdsl::bit_vector &);
+   // protected:
+
+        virtual void locate_ch( const char& , sdsl::bit_vector &) const;
+        virtual void locate_ch( const char& , std::vector<uint> &) const;
 
         bool bp_expand_prefix(const grammar_representation::g_long &, std::string&,const size_t &,size_t & pos) const;
 
         bool bp_expand_suffix(const grammar_representation::g_long &, std::string&,const size_t &,size_t & pos) const;
-
+        bool expand_prefix2(const size_t &, std::string&,const size_t &,size_t & pos) const;
         bool expand_prefix(const grammar_representation::g_long &, std::string&,const size_t &,size_t & pos) const;
 
         bool expand_suffix(const grammar_representation::g_long &, std::string&,const size_t &, size_t &) const;
@@ -54,6 +59,7 @@ class SelfGrammarIndex {
         void expand_grammar_sfx(const size_t &, std::string &, const size_t  &) const ;
 
         void find_second_occ(long int& , unsigned int &, sdsl::bit_vector& ) const ;
+        void find_second_occ(long int& , unsigned int &, std::vector<uint>& ) const ;
 
         template <typename  K>
         bool lower_bound(grammar_representation::g_long& lr,grammar_representation::g_long& hr, const K &f) const
@@ -154,8 +160,8 @@ class SelfGrammarIndex {
             return upper_bound(lr, hr, f);
         }
 
-        int cmp_prefix(const grammar_representation::g_long &,std::string::iterator&, std::string::iterator& );
-        int cmp_suffix(const grammar_representation::g_long &,std::string::iterator&, std::string::iterator& );
+        int cmp_prefix(const grammar_representation::g_long &,std::string::iterator&, std::string::iterator& )const;
+        int cmp_suffix(const grammar_representation::g_long &,std::string::iterator&, std::string::iterator& )const;
         int cmp_suffix_grammar(const size_t & ,std::string::iterator&, std::string::iterator& );
 
         int bp_cmp_prefix(const grammar_representation::g_long &,std::string::iterator&, std::string::iterator& )const;

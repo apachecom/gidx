@@ -16,9 +16,10 @@
 #include "../SelfGrammarIndexBS.h"
 #include "../SelfGrammarIndexPTS.h"
 
+
 using namespace std::chrono;
 using timer = std::chrono::high_resolution_clock;
-
+std::string path = "../files/";
 
 std::vector<std::string> patt;
 int code = 0;
@@ -32,11 +33,11 @@ SelfGrammarIndexPTS* idx_gimp_pts;
 SelfGrammarIndexBS* idx_gimpbs;
 
 
-
+std::fstream rlcsa_f(       "rlcsa",std::ios::out|std::ios::binary);
 std::fstream b_f(       "br",std::ios::out|std::ios::binary);
 std::fstream slp_f(     "slpr",std::ios::out|std::ios::binary);
 std::fstream r_f(       "rr",std::ios::out|std::ios::binary);
-std::fstream hyb_f(       "hybr",std::ios::out|std::ios::binary);
+std::fstream hyb_f(     "hybr",std::ios::out|std::ios::binary);
 std::fstream g_fpt(     "grpt",std::ios::out|std::ios::binary);
 std::fstream g_fpt8(    "grpt8",std::ios::out|std::ios::binary);
 std::fstream g_fpt16(   "grpt16",std::ios::out|std::ios::binary);
@@ -53,7 +54,7 @@ auto g_imp_locate = [](benchmark::State &st, const std::string& collection)
     size_t nocc = 0;
     double mean =0;
 
-    std::fstream g_f(std::to_string(collections_code[collection])+".gidx", std::ios::in | std::ios::binary);
+    std::fstream g_f(path+std::to_string(collections_code[collection])+".gidx", std::ios::in | std::ios::binary);
     idx_gimp = new SelfGrammarIndexPT();
     idx_gimp->load(g_f);
     g_f.close();
@@ -61,31 +62,28 @@ auto g_imp_locate = [](benchmark::State &st, const std::string& collection)
 
     for (auto _ : st)
     {
-
-        for (auto &&  i : patt )
-        {
+        for (auto &&  i : patt ) {
 
             auto start = timer::now();
+            std::vector<uint> X;
+            //sdsl::bit_vector _occ(data_bs.size(), 0);
+            idx_gimp->locate(i, X);
 
-            sdsl::bit_vector _occ(data_bs.size(),0);
-
-            idx_gimp->locate2(i, _occ);
-
-            sdsl::bit_vector::rank_1_type rrr(&_occ);
-
-
+            std::sort(X.begin(),X.end());
+            std::unique(X.begin(),X.end());
+            //sdsl::bit_vector::rank_1_type rrr(&_occ);
             auto stop = timer::now();
-
-            nocc += rrr.rank(_occ.size());
-            g_fpt << i << " " << nocc << "\n";
+            nocc += X.size();
+            //nocc += rrr.rank(_occ.size());
             mean += (duration_cast<nanoseconds>(stop - start).count());
         }
 
     }
-    g_fpt.close();
     st.counters["n_occ"] = nocc;
     st.counters["time"] = mean;
     st.counters["mean time"] = mean*1.0/nocc;
+    st.counters["space"] = idx_gimp->size_in_bytes();
+    //st.counters["g"] = idx_gimp->get_grammar().n_rules()-1;
     delete idx_gimp;
 
 };
@@ -99,7 +97,7 @@ auto g_imp_pts_locate = [](benchmark::State &st, const std::string & collection,
     size_t nocc = 0;
     double mean =0;
 
-    std::fstream g_f(std::to_string(collections_code[collection])+".gpts"+std::to_string(sampling)+"idx", std::ios::in | std::ios::binary);
+    std::fstream g_f(path+std::to_string(collections_code[collection])+".gpts"+std::to_string(sampling)+"idx", std::ios::in | std::ios::binary);
 
     idx_gimp_pts = new SelfGrammarIndexPTS(sampling);
     idx_gimp_pts->load(g_f);
@@ -107,73 +105,28 @@ auto g_imp_pts_locate = [](benchmark::State &st, const std::string & collection,
 
     for (auto _ : st)
     {
+        for (auto &&  i : patt ) {
 
-        for (auto &&  i : patt )
-        {
-
-            /////std::cout<<i<<std::endl;
             auto start = timer::now();
-            sdsl::bit_vector _occ(data_bs.size(),0);
-            idx_gimp_pts->locate2(i, _occ);
-            sdsl::bit_vector::rank_1_type rrr(&_occ);
+            std::vector<uint> X;
+            //sdsl::bit_vector _occ(data_bs.size(), 0);
+            idx_gimp_pts->locate(i, X);
+            std::sort(X.begin(),X.end());
+            std::unique(X.begin(),X.end());
+            //sdsl::bit_vector::rank_1_type rrr(&_occ);
+
             auto stop = timer::now();
 
-            nocc += rrr.rank(_occ.size());
-
-  /*          switch (sampling){
-
-                case 8:{
-                    g_fpt8 << i << " " << nocc << "\n";
-                }break;
-
-                case 16:{
-                    g_fpt16 << i << " " << nocc << "\n";
-                }break;
-
-                case 32:{
-                    g_fpt32 << i << " " << nocc << "\n";
-                }break;
-
-                case 64:{
-                    g_fpt64 << i << " " << nocc << "\n";
-                }break;
-
-                default  : break;
-
-            }*/
-
+            nocc += X.size();//rrr.rank(_occ.size());
             mean += (duration_cast<nanoseconds>(stop - start).count());
         }
-
     }
-
-/*
-    switch (sampling){
-
-        case 8:{
-            g_fpt8.close();
-        }break;
-
-        case 16:{
-            g_fpt16.close();
-        }break;
-
-        case 32:{
-            g_fpt32.close();
-        }break;
-
-        case 64:{
-            g_fpt64.close();
-        }break;
-
-        default  : break;
-
-    }*/
 
     st.counters["n_occ"] = nocc;
     st.counters["time"] = mean;
     st.counters["mean time"] = mean*1.0/nocc;
-
+    st.counters["space"] = idx_gimp_pts->size_in_bytes();
+    //st.counters["g"] = idx_gimp_pts->get_grammar().n_rules()-1;
     delete idx_gimp_pts;
 
 };
@@ -185,7 +138,7 @@ auto g_imp_bs_locate = [](benchmark::State &st, const std::string & collection)
     double mean =0;
 
     idx_gimpbs = new SelfGrammarIndexBS();
-    std::fstream gbs_f(std::to_string(collections_code[collection])+".gbsidx", std::ios::in | std::ios::binary);
+    std::fstream gbs_f(path+std::to_string(collections_code[collection])+".gbsidx", std::ios::in | std::ios::binary);
     idx_gimpbs->load(gbs_f);
     gbs_f.close();
 
@@ -198,21 +151,30 @@ auto g_imp_bs_locate = [](benchmark::State &st, const std::string & collection)
 
             //std::cout<<i<<std::endl;
             auto start = timer::now();
-            sdsl::bit_vector _occ(data_bs.size(),0);
-            idx_gimpbs->locate2(i, _occ);
-            sdsl::bit_vector::rank_1_type rrr(&_occ);
-            auto stop = timer::now();
+            std::vector<uint> X;
+            //sdsl::bit_vector _occ(data_bs.size(),0);
 
-            nocc += rrr.rank(_occ.size());
-            //g_fbs << i << " " << nocc <<"\n";
+            idx_gimpbs->locate(i, X);
+            std::sort(X.begin(),X.end());
+            std::unique(X.begin(),X.end());
+
+            //sdsl::bit_vector::rank_1_type rrr(&_occ);
+
+            auto stop = timer::now();
+            nocc+=X.size();
+            //nocc += rrr.rank(_occ.size());
+            g_fbs << i << " " << X.size() <<"\n";
             mean += (duration_cast<nanoseconds>(stop - start).count());
         }
 
     }
-    //g_fbs.close();
+    g_fbs.close();
     st.counters["n_occ"] = nocc;
     st.counters["time"] = mean;
     st.counters["mean time"] = mean*1.0/nocc;
+    st.counters["space"] = idx_gimpbs->size_in_bytes();
+    //st.counters["g"] = idx_gimpbs->get_grammar().n_rules()-1;
+
     delete idx_gimpbs;
 
 };
@@ -239,17 +201,27 @@ auto hyb_locate = [](benchmark::State &st)
             auto stop = timer::now();
 
             nocc += _Occ;
-            //hyb_f << i << " " << _Occ <<"\n";
+
+            //std::sort(_occ,_occ+(_Occ*sizeof(long)));
+
+
+            for (int j = 0; j < _Occ; ++j) {
+                hyb_f << _occ[j] << "\n";
+            }
+
             ///delete _occ;
             mean += (duration_cast<nanoseconds>(stop - start).count());
         }
 
     }
-//    hyb_f.close();
+    hyb_f.close();
     st.counters["n_occ"] = nocc;
     st.counters["time"] = mean;
     st.counters["mean time"] = mean*1.0/nocc;
-    delete idx_hyb;
+    st.counters["space"] = idx_hyb->sizeDS;
+   // st.counters["z"] = idx_hyb->orig_z;
+
+
 
 };
 
@@ -270,18 +242,25 @@ auto r_locate = [](benchmark::State &st)
 
             auto stop = timer::now();
             nocc += occ.size();
-//            r_f << i << " " << occ.size() <<"\n";
+
+            std::sort(occ.begin(),occ.end());
+
+            for (auto &&  jj: occ) {
+                r_f << jj <<"\n";
+            }
+
             mean += (duration_cast<nanoseconds>(stop - start).count());
 
         }
 
     }
-//    r_f.close();
+    r_f.close();
     st.counters["n_occ"] = nocc;
     st.counters["time"] = mean;
     st.counters["mean time"] = mean*1.0/nocc;
-
-    delete idx_r;
+    st.counters["space"] = sdsl::size_in_bytes(*idx_r);
+    //st.counters["r"] = idx_r->number_of_runs();
+    //delete idx_r;
 
 };
 
@@ -302,7 +281,14 @@ auto slp_locate = [](benchmark::State &st)
             auto start = timer::now();
             std::vector<uint> *pos = idx_slp->RePairSLPIndex::locate(tt, i.length(), &occs);
             auto stop = timer::now();
-//            slp_f << i << " " << occs <<"\n";
+
+            std::sort(pos->begin(),pos->end());
+
+            for (uint jj = 0; jj < pos->size(); ++jj)
+            {
+                slp_f << (*pos)[jj] -1 <<"\n";
+            }
+
             delete pos;
             nocc += occs;
             mean += (duration_cast<nanoseconds>(stop - start).count());
@@ -310,13 +296,16 @@ auto slp_locate = [](benchmark::State &st)
         }
 
     }
-
+    slp_f.close();
     st.counters["n_occ"] = nocc;
     st.counters["time"] = mean;
     st.counters["mean time"] = mean*1.0/nocc;
+    st.counters["space"] = idx_slp->size();
+    //st.counters["g"] = idx_slp->length();
+
 //    slp_f.close();
 
-    delete idx_slp;
+
 
 };
 
@@ -346,7 +335,7 @@ auto bt_locate = [](benchmark::State &st)
                 }
 
             auto stop = timer::now();
-//            b_f << i << " " << occs <<"\n";
+            b_f << i << " " << occs <<"\n";
             mean += (duration_cast<nanoseconds>(stop - start).count());
 
 
@@ -355,11 +344,11 @@ auto bt_locate = [](benchmark::State &st)
     }
 
 
-//    b_f.close();
+    b_f.close();
     st.counters["n_occ"] = nocc;
     st.counters["time"] = mean;
     st.counters["mean time"] = mean*1.0/nocc;
-
+    st.counters["space"] = data_bs.size();
 
 
 };
@@ -402,6 +391,15 @@ int main (int argc, char *argv[] ){
             data_bs[i] = 2;
     }
 
+
+
+    std::string S;
+    S.reserve(10);
+    for (int j = 0; j < 10; ++j) {
+        std::cout<<data_bs[92911778+j];
+    }
+    std::cout<<std::endl;
+
     f_c.close();
     code = collections_code[collection];
 
@@ -415,18 +413,21 @@ int main (int argc, char *argv[] ){
         std::cout<<"Error the pattern file could not opened!!\n";
         return 0;
     }
-    std::string buff;
-    while (!f.eof() && std::getline(f, buff)) {
+    std::string buff; uint i =0;
+    while (!f.eof() && std::getline(f, buff) && i < 1) {
         if(buff.size() > 1){
             patt.push_back(buff);
+            i++;
         }
     }
-
+    std::cout<<patt[0]<<std::endl;
     f.close();
+
+    return 0;
 
     /////////SLP
 
-   /* std::string filename = string(argv[3]) + std::to_string(collections_code[collection]);
+    std::string filename = path+std::to_string(collections_code[collection]);
     char* _f = (char *)filename.c_str();
 
     int q = cds_static::RePairSLPIndex::load(_f, &idx_slp);
@@ -455,24 +456,28 @@ int main (int argc, char *argv[] ){
     benchmark::RegisterBenchmark("Hyb-Index", hyb_locate);
 
 
-*/
+
 
 
 
     /////GRAMMAR IDEXES
 
 
-   // benchmark::RegisterBenchmark("Grammar-Binary-Search-Index", g_imp_bs_locate, collection);
-   // benchmark::RegisterBenchmark("Grammar-Improved-Index"    , g_imp_locate, collection);
+    benchmark::RegisterBenchmark("Grammar-Binary-Search-Index", g_imp_bs_locate, collection);
+    benchmark::RegisterBenchmark("Grammar-Improved-Index"    , g_imp_locate, collection);
     benchmark::RegisterBenchmark("Grammar-Improved-Index<8>" , g_imp_pts_locate,collection,8);
     benchmark::RegisterBenchmark("Grammar-Improved-Index<16>", g_imp_pts_locate,collection,16);
     benchmark::RegisterBenchmark("Grammar-Improved-Index<32>", g_imp_pts_locate,collection,32);
     benchmark::RegisterBenchmark("Grammar-Improved-Index<64>", g_imp_pts_locate,collection,64);
-    //benchmark::RegisterBenchmark("Brute Force-Index"    , bt_locate);
+    benchmark::RegisterBenchmark("Brute Force-Index"    , bt_locate);
 
 
     benchmark::Initialize(&argc, argv);
     benchmark::RunSpecifiedBenchmarks();
+
+    delete idx_slp;
+    delete idx_r;
+    delete idx_hyb;
 
 
 }

@@ -80,6 +80,10 @@ class compressed_grammar {
 
 
         }
+
+        const sdsl::wt_gmr<> & get_Xp() const ;
+        const auto & get_F() const ;
+
         void set_X_p( const wavelet_tree& );
 
         void set_F(const compact_perm& );

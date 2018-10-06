@@ -20,7 +20,6 @@
 #include "repetitive_collections.h"
 #include "../SelfGrammarIndexPTS.h"
 
-
 using namespace cds_static;
 
 #define QGRAM_DEF 4
@@ -98,7 +97,7 @@ auto ribuild = [](benchmark::State &st, const string &file_collection){
     std::string filename = path+std::to_string(collections_code[file_collection]);
     char* _f = (char *)filename.c_str();
 
-    fstream f_ridx(std::to_string(collections_code[file_collection])+".ri", std::ios::out | std::ios::binary);
+    fstream f_ridx(path+std::to_string(collections_code[file_collection])+".ri", std::ios::out | std::ios::binary);
     bool fast = false;
     bool sais = false;
     f_ridx.write((char*)&fast,sizeof(fast));
@@ -126,7 +125,7 @@ auto ribuild = [](benchmark::State &st, const string &file_collection){
 };
 
 
-auto slpbuild = [](benchmark::State &st, const string &file_collection){
+auto slpbuild = [](benchmark::State &st, const string &file_collection, int qgram){
 
     std::string filename = path+std::to_string(collections_code[file_collection]);
     char* _f = (char *)filename.c_str();
@@ -151,8 +150,6 @@ auto slpbuild = [](benchmark::State &st, const string &file_collection){
             cout << endl;
             cout << " >> Building the SLP Index for '"<<file_collection<<"':" << endl;
             cout << "    # Input file size: " << tsize << " bytes" << endl;
-
-            int qgram = QGRAM_DEF;
             cout << "    # " << qgram << "-grams will be additionally indexed in the grammar" << endl;
 
             // New RePairSLPIndex
@@ -284,25 +281,28 @@ int main (int argc, char *argv[] ){
 
     // New RePairSLPIndex
     //cout << " >> Building the SLP Index:" << endl;
-    benchmark::RegisterBenchmark("SLP-Index", slpbuild,collection);
-    // New Grammar-Improved-Index
-    //cout << " >> Building the Grammar-Improved-Index Binary Search:" << endl;
+    benchmark::RegisterBenchmark("R-Index", ribuild, collection);
+    benchmark::RegisterBenchmark("Hyb-Index", hybbuild, collection);
+    benchmark::RegisterBenchmark("SLP-Index-8", slpbuild,collection,8);
+    benchmark::RegisterBenchmark("SLP-Index-16", slpbuild,collection,16);
+    benchmark::RegisterBenchmark("SLP-Index-32", slpbuild,collection,32);
+    benchmark::RegisterBenchmark("SLP-Index-64", slpbuild,collection,64);
     benchmark::RegisterBenchmark("Grammar-Improved-Index Binary Search", g_imp_bs_build, collection);
-    //cout << " >> Building the Grammar-Improved-Index:" << endl;
     benchmark::RegisterBenchmark("Grammar-Improved-PT-Index", g_imp_build, collection);
-
     benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<8>",  g_imp_pts_build, collection, 8);
     benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<16>", g_imp_pts_build, collection, 16);
     benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<32>", g_imp_pts_build, collection, 32);
     benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<64>", g_imp_pts_build, collection, 64);
+    benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<128>",  g_imp_pts_build, collection,128);
+    benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<256>", g_imp_pts_build, collection, 256);
+    benchmark::RegisterBenchmark("Grammar-Improved-PT-Index<512>", g_imp_pts_build, collection, 512);
+
     /*cout << " >> Building the LZ77-Index:" << endl;
     benchmark::RegisterBenchmark("LZ77-Index", lz77build, collection);
     cout << " >> Building the LZEnd-Index:" << endl;
     benchmark::RegisterBenchmark("LZEnd-Index", lzEndbuild, collection);*/
     //cout << " >> Building R-Index:" << endl;
-    benchmark::RegisterBenchmark("R-Index", ribuild, collection);
-    //cout << " >> Building Hyb-Index:" << endl;
-    benchmark::RegisterBenchmark("Hyb-Index", hybbuild, collection);
+
 
 
     benchmark::Initialize(&argc, argv);

@@ -30,6 +30,7 @@ namespace dfuds {
         bv::select_0_type select_0;
 
 
+
     public:
         dfuds_tree() = default;
 
@@ -94,6 +95,7 @@ namespace dfuds {
          * return the parent of a node
          * */
         dfuds_long parent(const dfuds_long &)const;
+        bool is_ancestor(const dfuds_long &, const dfuds_long &)const;
 
         /*
          * dfs preorder over the tree
@@ -175,7 +177,7 @@ namespace dfuds {
 
         dfuds_tree& operator=(const dfuds_tree &);
 
-    protected:
+    public:
         dfuds_long pred0(const dfuds_long &i) const;
 
         dfuds_long succ0(const dfuds_long &i) const;

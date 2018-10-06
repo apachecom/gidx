@@ -20,7 +20,7 @@ compressed_grammar::g_long compressed_grammar::select_occ(const g_long & X, cons
         return select1_Z(F[X])+1;
 
 
-    return select0_Z(X_p.select(j - 1, X) + 1)+1;
+    return select0_Z( X_p.select(j - 1, X) + 1 ) + 1;
 
     ////return (j == 1 ? select1_Z(F[X]) : select0_Z(mX[make_pair((uint)X,(uint)j-1)] + 1)) + 1;
 }
@@ -663,6 +663,14 @@ compressed_grammar::g_long compressed_grammar::terminal_rule(const compressed_gr
 
 bool compressed_grammar::is_first_occ(const compressed_grammar::g_long & j) const {
     return Z[j-1];
+}
+
+const sdsl::wt_gmr<> &compressed_grammar::get_Xp() const {
+    return X_p;
+}
+
+const auto &compressed_grammar::get_F() const {
+    return F;
 }
 
 

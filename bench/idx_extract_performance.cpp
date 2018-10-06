@@ -30,7 +30,7 @@ int code = 0;
 HybridSelfIndex* idx_hyb;
 ri::r_index<>* idx_r;
 cds_static::RePairSLPIndex *idx_slp;
-SelfGrammarIndexPT* idx_gimp;
+SelfGrammarIndexBS* idx_gimp;
 
 
 
@@ -44,7 +44,7 @@ auto g_imp_display = [](benchmark::State &st, const std::string& collection)
     double mean =0;
 
     std::fstream g_f(std::to_string(collections_code[collection])+".gidx", std::ios::in | std::ios::binary);
-    idx_gimp = new SelfGrammarIndexPT();
+    idx_gimp = new SelfGrammarIndexBS();
     idx_gimp->load(g_f);
     g_f.close();
 
@@ -54,6 +54,7 @@ auto g_imp_display = [](benchmark::State &st, const std::string& collection)
 
         for (auto &&  i : rg )
         {
+
 
             auto start = timer::now();
             std::string s;
@@ -92,15 +93,17 @@ auto hyb_display = [](benchmark::State &st,const std::string & collection)
         for (auto &&  i : rg )
         {
 
+
+
             auto start = timer::now();
-            //idx_hyb->locate((uchar*)(i.c_str()),m,&_Occ,&_occ);
             uint m = i.second-i.first+1;
             unsigned char *s;
+            //idx_hyb->locate((uchar*)(i.c_str()),m,&_Occ,&_occ);
             idx_hyb->extract(i.first,m,&s);
 
             auto stop = timer::now();
 
-            //delete s;
+            delete []s;
 
             mean += (duration_cast<nanoseconds>(stop - start).count());
         }
@@ -210,12 +213,13 @@ int main (int argc, char *argv[] ){
         std::cout<<"Error the ranges file could not opened!!\n";
         return 0;
     }
-    std::string buff;
-    while (!f.eof() && std::getline(f, buff)) {
+    std::string buff; uint i = 0;
+    while (!f.eof() && std::getline(f, buff), i < 1000) {
         if(buff.size() > 1){
             uint l,r;
             sscanf(buff.c_str(),"%u %u",&l,&r);
             rg.emplace_back(l,r);
+            i++;
         }
     }
 
@@ -225,7 +229,7 @@ int main (int argc, char *argv[] ){
 
     benchmark::RegisterBenchmark("Grammar-Improved-Index"    , g_imp_display, collection);
     benchmark::RegisterBenchmark("SLP-Index", slp_display,collection);
-    //benchmark::RegisterBenchmark("Hyb-Index", hyb_display,collection);
+    benchmark::RegisterBenchmark("Hyb-Index", hyb_display,collection);
 
    /* /////////R-Index
     fstream rf(filename+".ri",std::ios::in|std::ios::binary);

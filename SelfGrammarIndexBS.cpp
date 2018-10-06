@@ -29,7 +29,7 @@ void SelfGrammarIndexBS::build(const std::string & text) {
     std::cout<<"\t total size of rules "<<not_compressed_grammar.get_size()<<std::endl;
     std::cout<<"\t size of the representation "<<not_compressed_grammar.size_in_bytes()*1/(1024*1024)<<"(mb)"<<std::endl;
 */
-    ///not_compressed_grammar.print(text);
+  //  not_compressed_grammar.print(text);
 
 
     /*
@@ -131,16 +131,18 @@ void SelfGrammarIndexBS::build(const std::string & text) {
     std::cout<<"end sorting suffixes "<<std::endl;
 
 /*
+    uint i = 0;
     for (auto && sf  : grammar_sfx) {
 
         std::string sfs;
         sfs.resize(sf.first.second - sf.first.first + 1);
         std::copy(text.begin()+sf.first.first,text.begin()+sf.first.second+1,sfs.begin());
-        std::cout<<sfs<<std::endl;
+        std::cout<<++i<<"-|"<<sfs<<std::endl;
 
     }
-
 */
+
+
     /*
      *
      * Building grid for 2d range search first occ
@@ -197,15 +199,16 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
      * */
     for (size_t  i = 1; i <= p_n ; ++i)
     {
-/*
-
-            std::string p1,p2;
+      /*      std::string p1,p2;
             p1.resize(i);
             p2.resize(p_n-i);
 
             std::copy(pattern.begin(),pattern.begin()+i,p1.begin());
             std::copy(pattern.begin()+i,pattern.end(),p2.begin());
-            std::reverse(p1.begin(),p1.end());*/
+            std::reverse(p1.begin(),p1.end());
+
+        std::cout<<"p1:"<<p1<<std::endl;
+        std::cout<<"p2:"<<p2<<std::endl;*/
 
         ///std::cout<<"************************************************************"<<std::endl;
         auto itera = pattern.begin() + i-1;
@@ -218,17 +221,11 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
         if(
                 !lower_bound(lr,hr,[&itera,&pattern,this](const grammar_representation::g_long & a)->int
                 {
-            ////        c++;
-                    ///size_t  n_s = itera - pattern.begin();
-
                     auto begin = pattern.begin();
                     auto end = itera;
-                    ///auto start = timer::now();
 
-                    auto r =  bp_cmp_suffix(a,end,begin);
-                    ///auto stop = timer::now();
-                    ///auto tttt = duration_cast<microseconds>(stop-start).count();
-                    ///std::cout<<"\t\t\t\tb1"<<tttt<<std::endl;
+                    //auto r =  bp_cmp_suffix(a,end,begin);
+                    auto r =  cmp_suffix(a,end,begin);
                     if(r == 0 && end != begin-1) return 1;
                     return r;
 
@@ -255,7 +252,6 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
         )continue;
         grammar_representation::g_long r1 = lr;
 
-    ///    std::cout<<"c->"<<c<<std::endl;
 ///c =0;
         lr = 1,hr = n_xj;
        //// std::cout<<"[l,r] "<<lr<<" "<<hr<<std::endl;
@@ -263,16 +259,11 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
         if(
                 !upper_bound(lr,hr,[&itera,&pattern,this](const grammar_representation::g_long & a)->int
                 {
-             ///       c++;
                     auto begin = pattern.begin();
                     auto end = itera;
 
-
-                    ///auto start = timer::now();
-                    auto r =  bp_cmp_suffix(a,end,begin);
-                    ///auto stop = timer::now();
-                    ///auto tttt = duration_cast<microseconds>(stop-start).count();
-                    ///std::cout<<"\t\t\t\tb2"<<tttt<<std::endl;
+                    //auto r =  bp_cmp_suffix(a,end,begin);
+                    auto r = cmp_suffix(a,end,begin);
                     if(r == 0 && end != begin-1) return 1;
 
                     return r;
@@ -293,6 +284,7 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
                 })
          ) continue;
         grammar_representation::g_long r2 = hr;
+
      ////   std::cout<<"c->"<<c<<std::endl;
 ///c =0;
         grammar_representation::g_long ls = 1,hs = n_sj;
@@ -303,14 +295,7 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
           ////          c++;
                     auto end = pattern.end();
                     auto it2 = itera+1;
-
-
-                    ///auto start = timer::now();
-                    auto r = bp_cmp_suffix_grammar(a,it2,end);
-                   /// auto stop = timer::now();
-                   /// auto tttt = duration_cast<microseconds>(stop-start).count();
-                  ////  std::cout<<"\t\t\t\tb1"<<tttt<<std::endl;
-
+                    auto r = cmp_suffix_grammar(a,it2,end);
                     return r;
                   /*  size_t  n_s = pattern.end()-itera ;
                     std::string sufx;
@@ -340,19 +325,11 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
         if(
                 !upper_bound(ls,hs,[&itera,&pattern,this](const grammar_representation::g_long & a)->int
                 {
-        /////            c++;
 
                     auto end = pattern.end();
                     auto it2 = itera+1;
-
-
-                    ///auto start = timer::now();
-                    auto r =  bp_cmp_suffix_grammar(a,it2,end);
-                    ///auto stop = timer::now();
-                    ///auto tttt = duration_cast<microseconds>(stop-start).count();
-                   // //std::cout<<"\t\t\t\tb1"<<tttt<<std::endl;
-
-
+                    //auto r =  bp_cmp_suffix_grammar(a,it2,end);
+                    auto r =  cmp_suffix_grammar(a,it2,end);
                     return r;
 
                    /*size_t  n_s = pattern.end()-itera;
@@ -375,33 +352,22 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
         grammar_representation::g_long c2 = hs;
         ///std::cout<<"c->"<<c<<std::endl;
         /////auto stop = timer::now();
-
         ////unsigned long tttt = duration_cast<microseconds>(stop-start).count();
-        /////std::cout<<"\tbinaries searches :"<<tttt<<std::endl;
-
+        //////std::cout<<"\tbinaries searches"<<std::endl;
 
         //////start = timer::now();
         std::vector< std::pair<size_t,size_t> > pairs;
         grid.range2(r1,r2,c1,c2,pairs);
-
-        //const auto& g_tree = _g.get_parser_tree();
-
-
+        ////const auto& g_tree = _g.get_parser_tree();
         long len = itera-pattern.begin() +1;
-
         ///////std::cout<<"range founded "<<pairs.size()<<std::endl;
-
         for (auto &pair : pairs) {
-
-
-            //size_t p = grid.labels(pair.first, pair.second);
+            ////size_t p = grid.labels(pair.first, pair.second);
             size_t p = grid.first_label_col(pair.second);
             size_t pos_p = _g.offsetText(g_tree[p]);
             unsigned int parent = g_tree.parent(g_tree[p]);
             long int  l = (- len + pos_p) - _g.offsetText(parent);
-
-
-            ///start = timer::now();
+            ////start = timer::now();
             if(mark[p] == false)
             {
                 mark[p] = true;
@@ -409,14 +375,10 @@ void SelfGrammarIndexBS::locate2( std::string & pattern, sdsl::bit_vector & occ)
             }
             //// stop = timer::now();
             ///std::cout<<"\t\tsearch_grammar_tree_second_occ time:" <<duration_cast<nanoseconds>(stop-start).count()<<"(ns)"<<std::endl;
-
             //// std::cout<<"find_second_occ "<<std::endl;
-
             ////stop = timer::now();
             /////tttt = duration_cast<microseconds>(stop-start).count();
             ////std::cout<<"\t\tfind_second_occ"<<tttt<<std::endl;
-
-
         }
 
        //// stop = timer::now();
@@ -456,6 +418,252 @@ void SelfGrammarIndexBS::locate( std::string & pattern, sdsl::bit_vector & occ)
         std::copy(pattern.begin(),pattern.begin()+i,p1.begin());
         std::copy(pattern.begin()+i,pattern.end(),p2.begin());
         std::reverse(p1.begin(),p1.end());*/
+
+        ///std::cout<<"************************************************************"<<std::endl;
+        auto itera = pattern.begin() + i-1;
+        ////// auto start = timer::now();
+
+        grammar_representation::g_long lr = 1,hr = n_xj;
+        ////  uint c = 0;
+        ///  std::cout<<"[l,r] "<<lr<<" "<<hr<<std::endl;
+
+        if(
+                !lower_bound(lr,hr,[&itera,&pattern,this](const grammar_representation::g_long & a)->int
+                {
+                    ////        c++;
+                    ///size_t  n_s = itera - pattern.begin();
+
+                    auto begin = pattern.begin();
+                    auto end = itera;
+                    ///auto start = timer::now();
+
+                    auto r =  bp_cmp_suffix(a,end,begin);
+                    ///auto stop = timer::now();
+                    ///auto tttt = duration_cast<microseconds>(stop-start).count();
+                    ///std::cout<<"\t\t\t\tb1"<<tttt<<std::endl;
+                    if(r == 0 && end != begin-1) return 1;
+                    return r;
+
+
+/*
+                    std::string sufx;
+                    sufx.resize(n_s);
+                    size_t pos = 0;
+                    expand_suffix(a,sufx,n_s,pos);
+
+                    auto cmp_it = itera-1;
+
+                    for (int j = 0; j < sufx.size() ; ++j) {
+                        if(*cmp_it < sufx[j]) return -1;
+                        if(*cmp_it > sufx[j]) return 1;
+                        --cmp_it;
+                    }
+                    return 0;
+
+
+                    */
+
+                })
+                )continue;
+        grammar_representation::g_long r1 = lr;
+
+        ///    std::cout<<"c->"<<c<<std::endl;
+///c =0;
+        lr = 1,hr = n_xj;
+        //// std::cout<<"[l,r] "<<lr<<" "<<hr<<std::endl;
+
+        if(
+                !upper_bound(lr,hr,[&itera,&pattern,this](const grammar_representation::g_long & a)->int
+                {
+                    ///       c++;
+                    auto begin = pattern.begin();
+                    auto end = itera;
+
+
+                    ///auto start = timer::now();
+                    auto r =  bp_cmp_suffix(a,end,begin);
+                    ///auto stop = timer::now();
+                    ///auto tttt = duration_cast<microseconds>(stop-start).count();
+                    ///std::cout<<"\t\t\t\tb2"<<tttt<<std::endl;
+                    if(r == 0 && end != begin-1) return 1;
+
+                    return r;
+                    /*   size_t  n_s = itera - pattern.begin();
+                       std::string sufx;
+                       sufx.resize(n_s);
+                       size_t pos = 0;
+                       expand_suffix(a,sufx,n_s,pos);
+
+                       auto cmp_it = itera-1;
+
+                       for (int j = 0; j < sufx.size() ; ++j) {
+                           if(*cmp_it < sufx[j]) return -1;
+                           if(*cmp_it > sufx[j]) return 1;
+                           --cmp_it;
+                       }
+                       return 0;*/
+                })
+                ) continue;
+        grammar_representation::g_long r2 = hr;
+        ////   std::cout<<"c->"<<c<<std::endl;
+///c =0;
+        grammar_representation::g_long ls = 1,hs = n_sj;
+        ////    std::cout<<"[l,r] "<<ls<<" "<<hs<<std::endl;
+        if(
+                !lower_bound(ls,hs,[&itera,&pattern,this](const grammar_representation::g_long & a)->int
+                {
+                    ////          c++;
+                    auto end = pattern.end();
+                    auto it2 = itera+1;
+
+
+                    ///auto start = timer::now();
+                    auto r = bp_cmp_suffix_grammar(a,it2,end);
+                    /// auto stop = timer::now();
+                    /// auto tttt = duration_cast<microseconds>(stop-start).count();
+                    ////  std::cout<<"\t\t\t\tb1"<<tttt<<std::endl;
+
+                    return r;
+                    /*  size_t  n_s = pattern.end()-itera ;
+                      std::string sufx;
+                      sufx.resize(n_s);
+                      expand_grammar_sfx(a,sufx,n_s);
+
+                      auto cmp_it = itera;
+
+                      for (int j = 0; j < sufx.size() ; ++j) {
+                          if(*cmp_it < sufx[j]) return -1;
+                          if(*cmp_it > sufx[j]) return 1;
+                          ++cmp_it;
+                      }
+                      return 0;
+
+
+                      */
+                })
+                )
+            continue;
+        grammar_representation::g_long c1 = ls;
+        //// std::cout<<"c->"<<c<<std::endl;
+        ls = 1,hs = n_sj;
+        ////std::cout<<"[l,r] "<<ls<<" "<<hs<<std::endl;
+        ////   c =0 ;
+
+        if(
+                !upper_bound(ls,hs,[&itera,&pattern,this](const grammar_representation::g_long & a)->int
+                {
+                    /////            c++;
+
+                    auto end = pattern.end();
+                    auto it2 = itera+1;
+
+
+                    ///auto start = timer::now();
+                    auto r =  bp_cmp_suffix_grammar(a,it2,end);
+                    ///auto stop = timer::now();
+                    ///auto tttt = duration_cast<microseconds>(stop-start).count();
+                    // //std::cout<<"\t\t\t\tb1"<<tttt<<std::endl;
+
+
+                    return r;
+
+                    /*size_t  n_s = pattern.end()-itera;
+                     std::string sufx;
+                     sufx.resize(n_s);
+                     expand_grammar_sfx(a,sufx,n_s);
+
+                     auto cmp_it = itera;
+
+                     for (int j = 0; j < sufx.size() ; ++j) {
+                         if(*cmp_it < sufx[j]) return -1;
+                         if(*cmp_it > sufx[j]) return 1;
+                         ++cmp_it;
+                     }
+                     return 0;
+                     */
+                })
+                )
+            continue;
+        grammar_representation::g_long c2 = hs;
+        ///std::cout<<"c->"<<c<<std::endl;
+        /////auto stop = timer::now();
+
+        ////unsigned long tttt = duration_cast<microseconds>(stop-start).count();
+        /////std::cout<<"\tbinaries searches :"<<tttt<<std::endl;
+
+
+        //////start = timer::now();
+        std::vector< std::pair<size_t,size_t> > pairs;
+        grid.range2(r1,r2,c1,c2,pairs);
+
+        const auto& g_tree = _g.get_parser_tree();
+
+
+        long len = itera-pattern.begin() +1;
+
+        ///////std::cout<<"range founded "<<pairs.size()<<std::endl;
+
+        for (auto &pair : pairs) {
+
+
+            //size_t p = grid.labels(pair.first, pair.second);
+            size_t p = grid.first_label_col(pair.second);
+            size_t pos_p = _g.offsetText(g_tree[p]);
+            unsigned int parent = g_tree.parent(g_tree[p]);
+            long int  l = (- len + pos_p) - _g.offsetText(parent);
+
+
+            ///start = timer::now();
+            find_second_occ(l,parent,occ);
+            //// stop = timer::now();
+            ///std::cout<<"\t\tsearch_grammar_tree_second_occ time:" <<duration_cast<nanoseconds>(stop-start).count()<<"(ns)"<<std::endl;
+
+            //// std::cout<<"find_second_occ "<<std::endl;
+
+            ////stop = timer::now();
+            /////tttt = duration_cast<microseconds>(stop-start).count();
+            ////std::cout<<"\t\tfind_second_occ"<<tttt<<std::endl;
+
+
+        }
+
+        //// stop = timer::now();
+        ////////tttt = duration_cast<microseconds>(stop-start).count();
+        ///////std::cout<<"\tfind_second_occ"<<tttt<<std::endl;
+    }
+
+
+}
+
+void SelfGrammarIndexBS::locate( std::string & pattern, std::vector<uint> & occ)
+{
+
+    if(pattern.size() == 1)
+    {
+        locate_ch(pattern[0],occ);
+        return;
+    }
+
+
+    size_t p_n = pattern.size();
+    size_t n_xj = _g.n_rules()-1;
+    size_t n_sj = grid.n_columns();
+    /*
+     *
+     * partitioning the pattern
+     *
+     * */
+    for (size_t  i = 1; i <= p_n ; ++i)
+    {
+
+
+        /* std::string p1,p2;
+         p1.resize(i);
+         p2.resize(p_n-i);
+
+         std::copy(pattern.begin(),pattern.begin()+i,p1.begin());
+         std::copy(pattern.begin()+i,pattern.end(),p2.begin());
+         std::reverse(p1.begin(),p1.end());*/
 
         ///std::cout<<"************************************************************"<<std::endl;
         auto itera = pattern.begin() + i-1;

@@ -95,8 +95,8 @@ dfuds_tree::dfuds_long dfuds_tree::parent(const dfuds_tree::dfuds_long & v) cons
     /*auto p = bps.find_open(v-1);
     while(bit_vector[p-1]!=0)--p;
     return p;*/
-    // return pred0( bps.find_open(v-1) )+1;
-    return pred0( bps.find_open(v-1) );
+    return pred0( bps.find_open(v-1) )+1;
+
 }
 
 dfuds_tree::dfuds_long dfuds_tree::pred0(const dfuds_tree::dfuds_long &i)const {
@@ -199,4 +199,8 @@ dfuds_tree::dfuds_long dfuds_tree::nsibling(const dfuds_tree::dfuds_long & v) co
 dfuds_tree::dfuds_long dfuds_tree::lchild(const dfuds_tree::dfuds_long & v) const {
     if(bit_vector[v] == false) return 0;
     return bps.find_close(v)+1;
+}
+
+bool dfuds_tree::is_ancestor(const dfuds_tree::dfuds_long & u,const dfuds_tree::dfuds_long & v) const {
+    return (u < v) && (v < bps.fwd_excess(u-1,-1));
 }

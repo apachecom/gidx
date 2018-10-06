@@ -71,7 +71,7 @@ bp_tree::bp_long bp_tree::children(const bp_tree::bp_long &v)const {
 
 bp_tree::bp_long bp_tree::leafnum(const bp_tree::bp_long &v) const {
 
-    return leafrank( bps.fwd_excess(v-1,-1) +1)-leafrank(v);
+    return leafrank(bps.find_close(v))-leafrank(v);
 }
 
 bp_tree::bp_long bp_tree::leafrank(const bp_tree::bp_long &v) const  {
@@ -101,6 +101,7 @@ bp_tree::bp_long bp_tree::nsibling(const bp_tree::bp_long & v) const{
 bp_tree::bp_long bp_tree::lchild(const bp_tree::bp_long & v) const{
     assert(bit_vector[v+1] == false);
     //open(B, close(B, v) − 1)
+
     return bps.find_open(bps.find_close(v)-1);
 }
 

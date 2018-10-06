@@ -8,6 +8,7 @@
 #include "collections.cpp"
 #include "../SelfGrammarIndexPT.h"
 #include "../SelfGrammarIndexPTS.h"
+#include "../SelfGrammarIndexBS.h"
 
 using namespace std::chrono;
 using timer = std::chrono::high_resolution_clock;
@@ -68,35 +69,70 @@ static void sipt_extract_subtrings(benchmark::State& state)
     for (auto _ : state)
     {
 
-            /*uint folder = state.range(0);
-            uint coll   = state.range(1);
-            std::string collection = "../" + dirFolder[folder]+dircollection[coll];
-            std::fstream f(collection, std::ios::in| std::ios::binary);
-            std::string data;
-            std::cout << "collection: "<< collection << std::endl;
-            if(!f.is_open()){
-                std::cout<<"Error the file could not opened!!\n";
-                return;
-            }
-            std::string buff;
-            while (!f.eof() && std::getline(f, buff)) {
-                data += buff;
+        uint folder = state.range(0);
+        uint coll   = state.range(1);
+        ///std::string collection = "../" + dirFolder[folder]+dircollection[coll];
+        //std::string collection = "../tests/collections/repetitive/reals/einstein.de.txt";//"../" + dirFolder[folder]+dircollection[coll];
+        ///std::string collection = "prob_pattern_bin";
+        std::string collection = "pdna.50MB";
 
-            }
-            for (int i = 0; i < data.size(); ++i) {
-                if(data[i] == '$' || data[i] == '#')
-                    data[i] = 'Z';
-            }
-            std::cout << "size of the string: " << data.length() << std::endl;
-            f.close();
-            std::fstream f_idx("pt_index_" + dircollection[coll], std::ios::in | std::ios::binary);
+        std::fstream f(collection, std::ios::in| std::ios::binary);
+        std::string data;
+        std::cout << "collection: "<< collection << std::endl;
+        if(!f.is_open()){
+            std::cout<<"Error the file could not opened!!\n";
+            return;
+        }
+        unsigned char buffer[1000];
+        while(!f.eof()){
+            f.read((char*)buffer,1000);
+            data.append((char*) buffer,f.gcount());
+        }
+        for (int i = 0; i < data.size(); ++i) {
+            if(data[i] == 0 || data[i] == 1)
+                data[i] = 3;
+        }
+        std::cout << "size of the string: " << data.length() << std::endl;
+        f.close();
+        std::fstream f_idx("pt_index_test", std::ios::out | std::ios::binary);
+
+
+        /*uint folder = state.range(0);
+        uint coll   = state.range(1);
+        std::string collection = "../" + dirFolder[folder]+dircollection[coll];
+        std::fstream f(collection, std::ios::in| std::ios::binary);
+        std::string data;
+        std::cout << "collection: "<< collection << std::endl;
+        if(!f.is_open()){
+            std::cout<<"Error the file could not opened!!\n";
+            return;
+        }
+        std::string buff;
+        while (!f.eof() && std::getline(f, buff)) {
+            data += buff;
+
+        }
+        for (int i = 0; i < data.size(); ++i) {
+            if(data[i] == '$' || data[i] == '#')
+                data[i] = 'Z';
+        }
+        std::cout << "size of the string: " << data.length() << std::endl;
+        f.close();
+        std::fstream f_idx("pt_index_" + dircollection[coll], std::ios::in | std::ios::binary);
 */
-            SelfGrammarIndexPT self_index;
-            std::string data = "abracadabra";
+
+
+            ///std::fstream f_c("p" + dircollection[coll], std::ios::out | std::ios::binary);
+
+            SelfGrammarIndexBS self_index;
+           //data = "andabamananaenlamananabanana";
+            //data = "panamabanana";
+           // data = "abracadabra";
             self_index.build(data);
+            self_index.save(f_idx);
 
 
-            uint R = 1000 ;
+            uint R = 10000 ;
             std::srand(std::time(nullptr));
             double mean;
 
@@ -125,11 +161,15 @@ static void sipt_extract_subtrings(benchmark::State& state)
                 self_index.display(r1,r2,s);
                 auto stop = timer::now();
                 unsigned long tttt = duration_cast<nanoseconds>(stop-start).count();
-                cout <<"query["<<1000-R<<"] "<<" # extractSubstring_time = " <<  tttt<< "\t\t %/c "<<tttt/11<<endl;
+                cout <<"query["<<10000-R<<"] "<<" # extractSubstring_time = " <<  tttt<< "\t\t %/c "<<tttt/11<<endl;
                 mean+= tttt*1.0/11.0;
-                if(s!=patt)
+                if(s!=patt){
                     self_index.display(r1,r2,s);
-                EXPECT_EQ(s,patt);
+                ///    f_c << patt;
+                }
+
+
+                ASSERT_EQ(s,patt);
 
 
             }
@@ -151,8 +191,8 @@ void sipt_locate(benchmark::State& state)
     uint coll   = state.range(1);
     ///std::string collection = "../" + dirFolder[folder]+dircollection[coll];
     std::string collection = "../tests/collections/repetitive/reals/einstein.de.txt";//"../" + dirFolder[folder]+dircollection[coll];
-    ///std::string collection = "prob_pattern_bin";
-    //std::string collection = "prob_pattern_pt";
+   // std::string collection = "prob_pattern_pt2";
+    //std::string collection = "pdna.50MB";
 
     std::fstream f(collection, std::ios::in| std::ios::binary);
     std::string data;
@@ -168,32 +208,40 @@ void sipt_locate(benchmark::State& state)
     }
     for (int i = 0; i < data.size(); ++i) {
         if(data[i] == 0 || data[i] == 1)
-            data[i] = 3;
+            data[i] = 2;
     }
     std::cout << "size of the string: " << data.length() << std::endl;
     f.close();
-    std::fstream f_idx("pt_index_test", std::ios::out | std::ios::binary);
+    //std::fstream f_idx("3.gbsidx", std::ios::in | std::ios::binary);
 
 
 
-
+        ///data = "aaaaaaaaaaaaaaaaaaaaaaa";
     //data="abracadabra";
     //data="panamabanana";
     //data="andabamananaenlamananalabanana";
-    ///data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra";
-    ///data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra" + data;
+    //data = "abraabracadapanamabananabracadaabrpanamabananaaabracadabracadabraapanamabananapanamabananabraabraapanamabananabracadabracadabraabracabracadabraaabracadabradabracabracadabraaabracpanamabananaadabradabrababrpanamabananaaabracadabracadabraabracabracadpanamabananaabraaabracadabrpanamabananaadabraraabracabrpanamabananaacadabraapanamabananaabracadabradabra";
+
     //self_index.build(data);
 
-    /*SelfGrammarIndexPTS self_index2(64);
-    self_index2.build(data);
-    self_index2.save(f_idx);
-    f_idx.close();*/
+    /*SelfGrammarIndexPTS self_index2(64);*/
+    //SelfGrammarIndexBS *self_index = new SelfGrammarIndexBS;
+    //self_index->build(data);
+    //self_index.save(f_idx);
+    //f_idx.close();
 
 
-    SelfGrammarIndexPTS *self_index = new SelfGrammarIndexPTS(8);
-    std::fstream ptf2("3.gpts64idx", std::ios::in| std::ios::binary);
-    self_index->load(ptf2);
-    ptf2.close();
+    SelfGrammarIndexPTS *self_index = new SelfGrammarIndexPTS(128);
+//    SelfGrammarIndexBS *self_index = new SelfGrammarIndexBS;
+    //self_index->load(f_idx);
+
+        self_index->build(data);//std::cout<<"LOAD"<<std::endl;
+    //self_index->load(f_idx);
+      ///  sleep(10);
+      //  f_idx.close();
+    //std::fstream ptf2("3.gbsidx", std::ios::in| std::ios::binary);
+    //self_index->load(ptf2);
+    //ptf2.close();
 
 
     /**/
@@ -253,12 +301,12 @@ void sipt_locate(benchmark::State& state)
     while (!infin.eof() && std::getline(infin, buff)) {
         inp.push_back(buff);
     }*/
-
-    uint R = 100;
+    //sleep(4);
+    uint R = 10000;
     std::srand(std::time(nullptr));
     uint t = 0;
     double total_time = 0;
-    std::fstream fpp("prob_pattern_pt2",std::ios::in);
+
     //uint j_patt = 0;
 
     while (--R) {
@@ -300,28 +348,30 @@ void sipt_locate(benchmark::State& state)
         auto stop = timer::now();
         ////std::cout<<patt<<std::endl;
         auto start_ = timer::now();
-        self_index->locate(patt, _occ);
+        self_index->locate2(patt, _occ);
         auto stop_ = timer::now();
 
         unsigned long tttt = duration_cast<microseconds>(stop_ - start_).count();
         EXPECT_EQ(_X,_occ);
         if(_occ != _X )
         {
-        //    self_index->locate(patt, _occ);
-            std::cout<<patt<<std::endl;
-  //          fpp << patt;
+            //sleep(10);
+       ///     self_index->locate2(patt, _occ);
+            //std::cout<<patt<<std::endl;
+            //fpp << patt;
 //            return;
         }
 
-        //
+        //EXPECT_EQ(_X,_occ);
         ////self_index.locate(patt, _occ);
 
         cout << "query[" << ++t << "] my    \t"<<patt<<" \t\t occurences_time = " <<duration_cast<microseconds>(stop_ - start_).count()<<std::endl;
         cout << "query[" << t <<   "] bforce\t"<<patt<<" \t\t occurences_time = " <<duration_cast<microseconds>(stop - start).count()<<std::endl;
         cout << "occurrences "<<noc<<std::endl;
-        total_time += tttt/100;
-
+        total_time += tttt/10000;
+        ///ASSERT_EQ(_X,_occ);
     }
+
 
     std::cout<<"mean time "<<total_time<<std::endl;
     /*std::fstream fi("idx_einstein",std::ios::out|std::ios::binary);
@@ -716,10 +766,10 @@ static void partial_extract_substring(benchmark::State& state)
     }
 }
 
-BENCHMARK(sipt_extract_subtrings)->Args( {dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
+//BENCHMARK(sipt_extract_subtrings)->Args( {dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
 ///BENCHMARK(partial_build_locate)->Args({dataDir::dir_sources, dataCollection::sources50})->Unit(benchmark::kMillisecond);
 ///BENCHMARK(partial_extract_substring)->Args( {dataDir::dir_sources, dataCollection::sources50})->Unit(benchmark::kMillisecond);
-//BENCHMARK(sipt_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
+BENCHMARK(sipt_locate)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
 //BENCHMARK(sipt_build)->Args({dataDir::dir_DNA, dataCollection::DNA50})->Unit(benchmark::kMillisecond);
 /*
 BENCHMARK(sipt_build)->Args({dataDir::dir_DNA, dataCollection::DNA100})->Unit(benchmark::kMillisecond);
